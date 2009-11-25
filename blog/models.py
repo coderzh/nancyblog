@@ -19,13 +19,18 @@ __author__ = 'CoderZh'
 from google.appengine.api import users
 from google.appengine.ext import db
 
+class Category(db.Model):
+	name = db.StringProperty()
+	description = db.TextProperty()
+	
 class Blog(db.Model):
+	permalink = db.StringProperty()
 	title = db.StringProperty()
 	content = db.TextProperty()
 	publishdate = db.DateTimeProperty(auto_now_add=True)
 	lastmodifytime = db.DateTimeProperty()
 	tags = db.StringListProperty()
-	category = db.CategoryProperty()
+	#category = db.ReferenceProperty(Category)
 	draft = db.BooleanProperty(default=False)
 	disabled = db.BooleanProperty(default=False)
 	
@@ -41,6 +46,9 @@ class Blog(db.Model):
 		query = BlogComment.all()
 		query.filter('blog =', self)
 		return query.fetch(per_page, offset=(page*per_page))
+	
+	def url(self):
+		return '/archive/%s/%s' % (self.publishdate.strftime('%Y/%m/%d'), self.permalink)
 	
 class BlogComment(db.Model):
 	content = db.TextProperty()
