@@ -1,0 +1,55 @@
+<!DOCTYPE html public "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head id="Head">
+<title>Hello {{ bloginfo.title }}</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta id="metaKeywords" name="keywords" content="博客,博客园,博客皮肤,博客园皮肤" />
+<link id="MainCss" type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+</head>
+
+<body>
+
+<div id="home">
+	<div id="header">
+		<div id="blogTitle">
+			<a id="lnkBlogLogo" href="#">
+			<img id="blogLogo" src="/images/logo.gif" alt="博客logo" /></a>
+			<h1><a class="headermaintitle" href="/">Yes!B/S!</a></h1>
+			<h2>Justin Young&#39;s blog</h2>
+		</div>
+		<!--end: blogTitle 博客的标题和副标题 -->
+		<div id="navigator">
+			<ul id="navList">
+				<li><a class="menu" href="/admin">首页</a></li>
+				<li><a class="menu" href="/admin/addblog">添加文章</a></li>
+				<li><a class="menu" href="/admin/bloglist">文章列表</a></li>
+				<li><a class="menu" href="/admin/categorylist">类别管理</a></li>
+				<li><a class="menu" href="GalleryThumbNailViewer.htm">相册</a></li>
+				<li><a href="Profile.htm" class="menu">留言</a></li>
+				<li><a class="menu" href="#">订阅</a>
+				<a class="aHeaderXML" href="#">
+				<img src="/images/rss.gif" alt="订阅" /></a></li>
+			</ul>
+			<div class="blogStats">
+				随笔- 99999&nbsp; 文章- 99999&nbsp; 评论- 9999999&nbsp; </div>
+			<!--end: blogStats --></div>
+		<!--end: navigator 博客导航栏 --></div>
+	<!--end: header 头部 -->
+	<div id="main">
+		<div id="mainContent">
+        	<div class="forFlow">
+           	{% block mainContent %}
+            {% endblock %}
+            </div>
+        </div>
+		<div id="sideBar"></div>
+	</div>
+	<div class="clear">
+	</div>
+	<div id="footer">Copyright ©2009 {{ bloginfo.author }}</div>
+</div>
+
+</body>
+
+</html>
