@@ -21,17 +21,27 @@ from google.appengine.ext import webapp
 
 import common.config as config
 import blog.view
+import admin.view
 
 def main():
     application = webapp.WSGIApplication([
         ('/*$', blog.view.MainPage),
+        #('/images/(.*)', blog.view.ImagesHandler),
+        #('/stylesheets/(.*)', blog.view.StyleSheetsHandler),
         #('/page/(\d*)/*$', blog.PageHandle),
         #('/403.html', blog.UnauthorizedHandler),
         #('/404.html', blog.NotFoundHandler),
+        
         ('/archive/([12]\d\d\d)/(\d|[01]\d)/(\d|[0123]\d)/([-\w]+)/*$', blog.view.ViewBlog),
         ('/archive/([12]\d\d\d)/*$', blog.view.YearArchive),
         ('/archive/([12]\d\d\d)/(\d|[01]\d)/*$', blog.view.MonthArchive),
+
+        ('/admin/*$', admin.view.MainPage),
         ('/admin/addblog/*$', blog.view.AddBlog),
+        ('/admin/editblog/(.*)/*$', blog.view.EditBlog),
+        ('/admin/categorylist/*$', admin.view.CategoryList),
+        ('/admin/addcategory/*$', admin.view.AddCategory),
+        ('/admin/editcategory/*$', admin.view.EditCategory),
         #('/search/(.*)/*$', blog.SearchHandler),
         #('/tag/(.*)', blog.TagHandler),
         #('/delicious/(.*)', blog.DeliciousHandler),

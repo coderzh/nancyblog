@@ -25,16 +25,11 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 
 class BaseRequestHandler(webapp.RequestHandler):
-	def check_login(self):
-		if users.get_current_user():
-			url = users.create_logout_url(self.request.uri)
-			url_linktext = 'Logout'
-		else:
-			url = users.create_login_url(self.request.uri)
-			url_linktext = 'Login'
-	
 	def template_render(self, template_name, template_values={}):
 		theme = Settings.get_value(config.Theme_Name, config.Theme_DefaultValue)
 		directory = os.path.split(os.path.dirname(__file__))[0]
 		template_path = os.path.join(directory, config.Theme_Folder, theme, template_name)
-		self.response.out.write(template.render(template_path, template_values, debug=config.Debug))
+		
+		values = { 'bloginfo' : BlogInfo() }
+		values.update(template_values)
+		self.response.out.write(template.render(template_path, values, debug=config.Debug))

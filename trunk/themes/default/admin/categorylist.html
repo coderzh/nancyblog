@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block mainContent %}
+<h1 class="PostListTitle">我的分类</h1>
+<table class="cz-table">
+    <thead>
+    <tr>
+        <th width='15%'>Name</th>
+        <th width='50%'>Description</th>
+        <th width=''>Visible</th>
+        <th width=''>Operation</th>
+    </tr>
+    </thead>
+    {% for category in categories %}
+    <tr>
+        <td><a href="/admin/editcategory/{{ category.key.id }}">{{ category.name }}</a></td>
+        <td>{{ category.description }}</td>
+        <td>{{ category.visible }}</td>
+        <td><a href="/admin/deletecategory/{{ category.key.id }}" onclick="return window.confirm('delete it?');">Delete</a></td>
+    </tr>
+    {% endfor %}
+</table>
+<div class="postSeparator"></div>
+<form method="post" action="/admin/addcategory/">
+    <div>
+	    <h2>Name:</h2>
+		<input name="category_name" id="category_name" type=text size="60" />
+    </div>
+    <div>
+        <h2>Description:</h2>
+        <textarea id="category_description" name="category_description" rows="5" cols="49"></textarea>
+    </div>
+    <div>
+		<input type="checkbox" id="category_visible" name="category_visible">
+        <label for="category_visible"><b>Visible</b></label>
+    </div>
+    <div>
+    <input name=submit type=submit value=add>
+    </div>
+</form>
+{% endblock %}

@@ -16,17 +16,31 @@
 
 __author__ = 'CoderZh'
 
+import common.config as config
 from google.appengine.ext import db
 
 class Settings(db.Model):
-	name = db.StringProperty()
-	value = db.TextProperty()
-	
-	@staticmethod
-	def get_value(name, default_value = None):
-		return_value = Settings.all().filter('name =', name).get()
-		if not return_value:
-			return default_value
-		return return_value.value
-		
-	
+    name = db.StringProperty()
+    value = db.TextProperty()
+
+    @staticmethod
+    def get_value(name, default_value = None):
+        return_value = Settings.all().filter('name =', name).get()
+        if not return_value:
+            new_item = Settings(name = name, value = default_value)
+            new_item.put()
+            return default_value
+        return return_value.value
+
+
+class BlogInfo():
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+    
+    def __init__(self):
+        self.title = Settings.get_value('blogtitle', config.BlogTitle)
+        self.author = Settings.get_value('author', config.Author)
+        self.homepage = Settings.get_value('homepage', config.HomePage)

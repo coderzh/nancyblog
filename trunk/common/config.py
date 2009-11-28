@@ -18,6 +18,12 @@ __author__ = 'CoderZh'
 
 Debug = False
 
+Author = 'CoderZh'
+Email = 'coderzh@gmail.com'
+HomePage = 'http://coderzh.cnblogs.com'
+
+BlogTitle = 'Nancy Blog'
+
 Theme_Name = 'theme'
 Theme_DefaultValue = 'default'
 Theme_Folder = 'themes'

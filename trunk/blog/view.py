@@ -18,26 +18,27 @@ __author__ = 'CoderZh'
 
 import time
 import common.authorized as authorized
-from google.appengine.ext.webapp import template
-
 from common.view import BaseRequestHandler
 from blog.models import *
 
 class MainPage(BaseRequestHandler):
     def get(self):
-        self.check_login()
         blogs = Blog.get_blogs()
         template_values = {
             'blogs': blogs,
             }
-        self.template_render('index.html', template_values)
+        self.template_render('default.html', template_values)
         
-class ViewBlog(BaseRequestHandler):
-    def get(self, year, month, day, permalink):
-        blog = Blog.all().filter('permalink =', permalink).get()
-        template_values = { 'blog': blog}
-        self.template_render('blog/view.html', template_values)
-        
+class ImagesHandler(BaseRequestHandler):
+    def get(self, path):
+        theme = 'default'
+        self.redirect('/static/' + theme + '/images/' + path)
+
+class StyleSheetsHandler(BaseRequestHandler):
+    def get(self, path):
+        theme = 'default'
+        self.redirect('/static/' + theme + '/stylesheets/' + path)
+                
 class YearArchive(BaseRequestHandler):
     def get(self, year):
         template_values = {}
@@ -51,8 +52,8 @@ class MonthArchive(BaseRequestHandler):
 class AddBlog(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
-        template_values = {}
-        self.template_render('blog/add.html', template_values)
+        template_values = { 'categories' : Category.get_all_visible_categories(1000) }
+        self.template_render('admin/addblog.html', template_values)
     
     @authorized.role('admin')
     def post(self):
@@ -60,10 +61,64 @@ class AddBlog(BaseRequestHandler):
         content = self.request.POST.get('text_input')
         permalink = self.request.POST.get('permalink')
         tags = self.request.POST.get('tags').split()
+        
         new_blog = Blog(permalink=permalink, title=title, content=content, tags=tags)
         new_blog.put()
         
         if not new_blog.permalink:
             new_blog.permalink = str(new_blog.key())
             new_blog.put()
-        self.redirect(new_blog.url())
+
+        categories = Category.get_all_visible_categories(1000)
+        for category in categories:
+            if self.request.POST.get('category_%s' % category.key().id()) is not None:
+                new_blogcategory = BlogCategory(blog=new_blog, category=category)
+                new_blogcategory.put()
+        
+        self.redirect(new_blog.url)
+        
+class EditBlog(BaseRequestHandler):
+    @authorized.role('admin')
+    def get(self, permalink):
+        blog = Blog.all().filter('permalink =', permalink).get()
+        template_values = { 'blog' : blog, 'categories' : Category.get_all_visible_categories(1000) }
+        self.template_render('admin/editblog.html', template_values)
+    
+    @authorized.role('admin')
+    def post(self, id):
+        title = self.request.POST.get('title_input')
+        content = self.request.POST.get('text_input')
+        permalink = self.request.POST.get('permalink')
+        tags = self.request.POST.get('tags').split()
+        
+        blog = Blog.get_by_id(int(id))
+        if blog:
+            blog.title = title
+            blog.content = content
+            if permalink:
+                blog.permalink = permalink
+            blog.tags = tags
+            blog.put()
+        else:
+            blog = Blog(title=title, content=content, permalink=permalink, tags=tags)
+            blog.put()
+            if not permalink:
+                blog.permalink = str(blog.key())
+                blog.put()
+        
+        categories = Category.get_all_visible_categories(1000)
+        for category in categories:
+            if self.request.POST.get('category_%s' % category.key().id()) is not None:
+                alreadyexits = BlogCategory.all().filter('blog =', blog).filter('category =', category).count()
+                if not alreadyexits:
+                    new_blogcategory = BlogCategory(blog=blog, category=category)
+                    new_blogcategory.put()
+        
+        self.redirect(blog.url)
+        
+        
+class ViewBlog(BaseRequestHandler):
+    def get(self, year, month, day, permalink):
+        blog = Blog.all().filter('permalink =', permalink).get()
+        template_values = { 'blog': blog}
+        self.template_render('viewblog.html', template_values)
