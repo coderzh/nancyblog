@@ -17,20 +17,28 @@
 __author__ = 'CoderZh'
 
 import common.config as config
-from google.appengine.ext import db
+from common.models import BaseModel
 
-class Settings(db.Model):
+from google.appengine.ext import db
+from google.appengine.api import memcache
+
+class Settings(BaseModel):
     name = db.StringProperty()
     value = db.TextProperty()
 
     @staticmethod
     def get_value(name, default_value = None):
-        return_value = Settings.all().filter('name =', name).get()
-        if not return_value:
-            new_item = Settings(name = name, value = default_value)
-            new_item.put()
-            return default_value
-        return return_value.value
+        setting_item = memcache.get(name)
+        
+        if setting_item is None:
+            setting_item = Settings.all().filter('name =', name).get()
+            if not setting_item:
+                setting_item = Settings(name = name, value = str(default_value))
+                setting_item.put()
+            
+            memcache.add(name, setting_item)
+            
+        return setting_item.value
 
 
 class BlogInfo():
