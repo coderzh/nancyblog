@@ -20,6 +20,7 @@ import time
 import common.authorized as authorized
 from common.view import BaseRequestHandler
 from blog.models import *
+from admin.models import Settings
 
 class MainPage(BaseRequestHandler):
     def get(self):
@@ -79,8 +80,9 @@ class AddBlog(BaseRequestHandler):
         
 class EditBlog(BaseRequestHandler):
     @authorized.role('admin')
-    def get(self, permalink):
-        blog = Blog.all().filter('permalink =', permalink).get()
+    def get(self):
+        blog_id = self.request.GET.get('id')
+        blog = Blog.get_by_id(int(blog_id))
         template_values = { 'blog' : blog, 'categories' : Category.get_all_visible_categories(1000) }
         self.template_render('admin/editblog.html', template_values)
     
@@ -116,9 +118,36 @@ class EditBlog(BaseRequestHandler):
         
         self.redirect(blog.url)
         
-        
+
 class ViewBlog(BaseRequestHandler):
     def get(self, year, month, day, permalink):
         blog = Blog.all().filter('permalink =', permalink).get()
         template_values = { 'blog': blog}
         self.template_render('viewblog.html', template_values)
+
+class DeleteBlog(BaseRequestHandler):
+    @authorized.role('admin')
+    def get(self):
+        blog_id = self.request.GET.get('id')
+        if blog_id:
+            Blog.delete_by_id(blog_id)
+        self.redirect('/admin/bloglist')
+
+class BlogList(BaseRequestHandler):
+    @authorized.role('admin')
+    def get(self):
+        page_index = self.request.GET.get('page')
+        if not page_index:
+            page_index = 1
+        else:
+            try:
+                page_index = int(page_index)
+            except:
+                page_index = 1
+                        
+        numbers_per_page = Settings.get_value('numbers_per_page_bloglist', 20)
+        
+        pager = Pager(Blog, page_index, numbers_per_page)
+        
+        template_values = { 'page' : pager }
+        self.template_render('admin/bloglist.html', template_values)

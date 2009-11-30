@@ -16,9 +16,10 @@
 
 __author__ = 'CoderZh'
 
-from blog.models import Category
+from blog.models import Category, BlogCategory
 import common.authorized as authorized
 from common.view import BaseRequestHandler
+from google.appengine.ext import db
 
 class MainPage(BaseRequestHandler):
     @authorized.role('admin')
@@ -28,8 +29,13 @@ class MainPage(BaseRequestHandler):
 class CategoryList(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
+        tempalte_values = {}
+        editcategoryid = self.request.GET.get('editcategoryid')
+        if editcategoryid:
+            tempalte_values['editcategory'] = Category.get_by_id(int(editcategoryid))
+            
         categories = Category.get_all()
-        tempalte_values = { 'categories' : categories }
+        tempalte_values['categories'] = categories
         self.template_render('admin/categorylist.html', tempalte_values)
 
 class AddCategory(BaseRequestHandler):
@@ -38,13 +44,25 @@ class AddCategory(BaseRequestHandler):
         category_name = self.request.POST.get('category_name')
         category_description = self.request.POST.get('category_description')
         category_visible = self.request.POST.get('category_visible')
-        
-        new_category = Category(name=category_name, description=category_description, visible=category_visible == u'on')
-        new_category.put()
+        edit_categoryid = self.request.POST.get('editcategoryid')
+
+        if edit_categoryid:
+            edit_category = Category.get_by_id(int(edit_categoryid))
+            edit_category.name = category_name
+            edit_category.description = category_description
+            edit_category.visible = category_visible == u'on'
+            edit_category.put()
+        else:
+            new_category = Category(name=category_name, description=category_description, visible=category_visible == u'on')
+            new_category.put()
     
         self.redirect('/admin/categorylist')
-
-class EditCategory(BaseRequestHandler):
+        
+    
+class DeleteCategory(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
-        pass
+        category_id = self.request.GET.get('id')
+        if category_id:
+            Category.delete_by_id(category_id)
+        self.redirect('/admin/categorylist')

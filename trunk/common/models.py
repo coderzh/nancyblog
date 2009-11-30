@@ -16,14 +16,24 @@
 
 __author__ = 'CoderZh'
 
-Debug = True
+from google.appengine.ext import db
 
-Author = 'CoderZh'
-Email = 'coderzh@gmail.com'
-HomePage = 'http://coderzh.cnblogs.com'
+class BaseModel(db.Model):
+	@classmethod
+	def count_all(cls):
+		"""
+		Count *all* of the rows (without maxing out at 1000)
+		"""
+		count = 0
+		query = cls.all().order('__key__')
 
-BlogTitle = 'Nancy Blog'
-
-Theme_Name = 'theme'
-Theme_DefaultValue = 'default'
-Theme_Folder = 'themes'
+		while 1:
+			current_count = query.count()
+			count += current_count
+			if current_count == 0:
+				break
+	
+			last_key = query.fetch(1, current_count-1)[0].key()
+			query = query.filter('__key__ > ', last_key)
+	
+		return count
