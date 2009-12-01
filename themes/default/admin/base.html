@@ -6,6 +6,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta id="metaKeywords" name="keywords" content="博客,博客园,博客皮肤,博客园皮肤" />
 <link id="MainCss" type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+{% block inhead %}{% endblock %}
 </head>
 
 <body>
@@ -22,7 +23,6 @@
 		<div id="navigator">
 			<ul id="navList">
 				<li><a class="menu" href="/admin">首页</a></li>
-				<li><a class="menu" href="/admin/addblog">添加文章</a></li>
 				<li><a class="menu" href="/admin/bloglist">文章列表</a></li>
 				<li><a class="menu" href="/admin/categorylist">类别管理</a></li>
 				<li><a class="menu" href="GalleryThumbNailViewer.htm">相册</a></li>
@@ -43,7 +43,7 @@
             {% endblock %}
             </div>
         </div>
-		<div id="sideBar"></div>
+		<div id="sideBar">{% block sideBar %}{% endblock %}</div>
 	</div>
 	<div class="clear">
 	</div>

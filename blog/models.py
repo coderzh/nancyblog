@@ -85,7 +85,11 @@ class Blog(BaseModel):
 		
 	@property
 	def edit_url(self):
-		return '/admin/editblog/%s' % self.permalink
+		return '/admin/editblog?id=%s' % self.key().id()
+	
+	@property
+	def delete_url(self):
+		return '/admin/deleteblog?id=%s' % self.key().id()
 	
 	@property
 	def tags_string(self):

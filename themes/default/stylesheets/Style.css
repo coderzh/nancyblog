@@ -355,10 +355,10 @@ a:active {
 	font-weight: bold;
 	line-height: 1.5em;
 	font-size: 110%;
-	margin-top: 15px;
+	margin-top: 5x;
 	margin-bottom: 10px;
 	border-bottom: 1px solid #C5D7EF;
-	text-align: center;
+	text-align: left;
 }
 .catListComment {
 	line-height: 1.5em;

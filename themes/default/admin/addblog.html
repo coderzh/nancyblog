@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% block inhead %}
+<script type="text/javascript" src="/fckeditor/fckeditor.js"></script>
+{% endblock %}
 {% block mainContent %}
 <h1 class="PostListTitle">添加文章</h1>
 <div id="editform">
@@ -9,7 +12,7 @@
     </div>
     <div id="blogpost">
         <h2>Content</h2>
-        <textarea id="text_input" name="text_input" rows="20" cols="75"></textarea>
+        {{ fckeditor }}
     </div>
     <div id="blogcategories">
         {% for category in categories %}
@@ -28,3 +31,13 @@
     </form>
 </div>
 {% endblock %}
+
+{% block sideBar %}
+<div class="catListEssay">
+    <h3 class="catListTitle">操作</h3>
+    <ul>
+        <li><a href="/admin/addblog">» 添加文章</a></li>
+        <li><a href="#">» 草稿箱</a></li>
+    </ul>
+</div>
+{% endblock%}

@@ -13,6 +13,12 @@ handlers:
 - url: /javascript
   static_dir: themes/default/javascript
   
+- url: /fckeditor
+  static_dir: static/fckeditor
+
+- url: /syntaxhighlighter
+  static_dir: static/syntaxhighlighter
+  
 - url: /admins/.*
   #script: admin/main.py
   script: $PYTHON_LIB/google/appengine/ext/admin
