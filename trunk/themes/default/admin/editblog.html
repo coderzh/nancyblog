@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block mainContent %}
 <div id="editform">
-<form method="post" action="/admin/editblog/{{ blog.key.id }}">
+<form method="post" action="/admin/editblog">
     <div>
          <input name=title_input id="title_input" type=text size="60" value="{{ blog.title }}">
          <label for="title_input"><b>Title</b>(required)</label>
     </div>
     <div>
         <h2>Content</h2>
-        <textarea id="text_input" name="text_input" rows="20" cols="75">{{ blog.content }}</textarea>
+        {{ fckeditor }}
     </div>
     <div>
 		{% for category in categories %}
@@ -24,7 +24,10 @@
          <input type=text size="60" id="permalink" name="permalink" value="{{ blog.permalink }}">
          <label for="permalink"><b>Permalink</b> </label>
     </div>
-    <div><input name=submit type=submit value=edit></div>
+    <div>
+    	<input name="id" type="hidden" value="{{ blog.key.id }}" />
+    	<input name="submit" type="submit" value="编辑" />
+    </div>
 </form>
 </div>
 {% endblock %}

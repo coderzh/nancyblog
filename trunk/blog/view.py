@@ -16,7 +16,10 @@
 
 __author__ = 'CoderZh'
 
+import os
 import time
+
+import common.fckeditor as fckeditor
 import common.authorized as authorized
 from common.view import BaseRequestHandler
 from blog.models import *
@@ -52,8 +55,16 @@ class MonthArchive(BaseRequestHandler):
         
 class AddBlog(BaseRequestHandler):
     @authorized.role('admin')
-    def get(self):
-        template_values = { 'categories' : Category.get_all_visible_categories(1000) }
+    def get(self):        
+        oFCKeditor = fckeditor.FCKeditor('text_input')
+        oFCKeditor.Height = 500
+        oFCKeditor.BasePath = '/fckeditor/'
+
+        fckeditor_html = oFCKeditor.Create()
+
+        template_values = { 'categories' : Category.get_all_visible_categories(1000),
+                            'fckeditor' : fckeditor_html}
+        
         self.template_render('admin/addblog.html', template_values)
     
     @authorized.role('admin')
@@ -83,17 +94,26 @@ class EditBlog(BaseRequestHandler):
     def get(self):
         blog_id = self.request.GET.get('id')
         blog = Blog.get_by_id(int(blog_id))
-        template_values = { 'blog' : blog, 'categories' : Category.get_all_visible_categories(1000) }
+        
+        oFCKeditor = fckeditor.FCKeditor('text_input')
+        oFCKeditor.Height = 500
+        oFCKeditor.BasePath = '/fckeditor/'
+        oFCKeditor.Value = blog.content
+        
+        fckeditor_html = oFCKeditor.Create()
+        template_values = { 'blog' : blog, 'categories' : Category.get_all_visible_categories(1000),
+                            'fckeditor' : fckeditor_html}
         self.template_render('admin/editblog.html', template_values)
     
     @authorized.role('admin')
-    def post(self, id):
+    def post(self):
+        blog_id = self.request.POST.get('id')
         title = self.request.POST.get('title_input')
         content = self.request.POST.get('text_input')
         permalink = self.request.POST.get('permalink')
         tags = self.request.POST.get('tags').split()
         
-        blog = Blog.get_by_id(int(id))
+        blog = Blog.get_by_id(int(blog_id))
         if blog:
             blog.title = title
             blog.content = content
