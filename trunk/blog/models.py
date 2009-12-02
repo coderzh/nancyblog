@@ -50,12 +50,14 @@ class Blog(BaseModel):
 	title = db.StringProperty()
 	content = db.TextProperty()
 	publishdate = db.DateTimeProperty(auto_now_add=True)
-	lastmodifytime = db.DateTimeProperty()
+	lastmodifytime = db.DateTimeProperty(auto_now=True)
 	tags = db.StringListProperty()
 	category = db.ReferenceProperty(Category)
 	draft = db.BooleanProperty(default=False)
 	disabled = db.BooleanProperty(default=False)
 	viewcount = db.IntegerProperty(default=0)
+	author = db.UserProperty(auto_current_user_add=True)
+	
 	
 	@staticmethod
 	def get_blogs(per_page=20, page=0):
@@ -122,8 +124,10 @@ class Blog(BaseModel):
 	
 class BlogComment(BaseModel):
 	content = db.TextProperty()
-	user = db.UserProperty()
+	username = db.StringProperty()
+	userlink = db.StringProperty()
 	blog = db.ReferenceProperty(Blog)
+	time = db.DateTimeProperty(auto_now=True)
 	
 class BlogCategory(BaseModel):
 	blog = db.ReferenceProperty(Blog)
@@ -151,7 +155,7 @@ class Pager:
 		return range(start, end + 1)
 	
 	def _get_items(self, numbers_per_page, page_index):
-		items = self.model_class.all().fetch(numbers_per_page, page_index)
+		items = self.model_class.all().fetch(numbers_per_page, page_index - 1)
 		if not items:
 			items = []
 		return items

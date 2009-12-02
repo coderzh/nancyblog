@@ -30,6 +30,9 @@ class BaseRequestHandler(webapp.RequestHandler):
 		directory = os.path.split(os.path.dirname(__file__))[0]
 		template_path = os.path.join(directory, config.Theme_Folder, theme, template_name)
 		
-		values = { 'bloginfo' : BlogInfo() }
+		current_user = users.get_current_user()
+		
+		values = { 'bloginfo' : BlogInfo(),
+				   'user' :  current_user }
 		values.update(template_values)
 		self.response.out.write(template.render(template_path, values, debug=config.Debug))

@@ -1,23 +1,16 @@
 {% extends "base.html" %}
 
 {% block inhead %}
-<!-- Include required JS files -->
-<script type="text/javascript" src="/syntaxhighlighter/src/shCore.js"></script>
-<!-- At least one brush, here we choose JS. You need to include a brush for every language you want to highlight -->
-<script type="text/javascript" src="/syntaxhighlighter/scripts/shBrushCSharp.js"></script>
-<script type="text/javascript" src="/syntaxhighlighter/scripts/shBrushPython.js"></script>
-	 
-<!-- Include *at least* the core style and default theme -->
-<link href="/syntaxhighlighter/styles/shCore.css" rel="stylesheet" type="text/css" />
-<link href="/syntaxhighlighter/styles/shThemeNancy.css" rel="stylesheet" type="text/css" />
 
-<script type="text/javascript">
-	SyntaxHighlighter.defaults['gutter'] = true;
-	SyntaxHighlighter.all()
-</script>
 {% endblock %}
-
 {% block mainContent %}
+<script>
+var RecaptchaOptions = {
+   theme: 'custom',
+   lang: 'en'
+};
+</script>
+
 <div id="topics">
     <div class="post">
         <h1 class="postTitle"><a class="postTitle2" href="{{ blog.url }}">{{ blog.title }}</a> </h1>
@@ -28,185 +21,62 @@
             <div id="EntryTag">Tag标签: {% for tag in blog.tags %}<a href="/tag/{{tag}}">{{ tag }}</a>{% endfor %}</div>
         </div>
         <div class="postDesc">
-                post@ {{ blog.publishdate|date:"Y-m-j H:i" }} <a href="{{ bloginfo.homepage }}">{{ bloginfo.author }}</a> 阅读({{ blog.viewcount }})
-            <a href="#">评论({{ blog.comments_count }})</a>&nbsp; <a href="{{ blog.edit_url }}">编辑</a>&nbsp;
+                post@ {{ blog.publishdate|date:"Y-m-j H:i" }}{{ blog.author.nickname }}<a href="#">评论({{ blog.comments_count }})</a>&nbsp; <a href="{{ blog.edit_url }}">编辑</a>&nbsp;
             <a href="#">收藏</a> 所属分类: {% for category in blog.categories %}{% if category.visible %}<a href="/category/{{ category.name }}">{{ category.name }}</a>{% endif %}{% endfor %}
             <a class="aPostDescFav" href="#">网摘收藏</a></div>
     </div>
 </div>
 <!--end: topics 文章、评论容器-->
 <div id="AjaxHolder_UpdatePanel1">
-    <div class="feedback_area_title">
-        发表评论</div>
-    <div class="feedbackNoItems">
-    </div>
+    <div class="feedback_area_title">发表评论</div>
+    <div class="feedbackNoItems"></div>
+    {% for comment in blog.comments %}
     <div class="feedbackItem">
         <div class="feedbackListSubtitle">
-            <div class="feedbackManage">
-&nbsp; <a href="#">回复</a>&nbsp; <a href="#">引用</a>&nbsp;
-                <a  href="#">
-                删除</a>&nbsp;
-                <a id="AjaxHolder_Comments_CommentList_ctl00_EditLink" causesvalidation="False" href="#">
-                修改</a> </div>
-            <a href="#">#1楼</a>&nbsp;<a name="1089695"></a><span class="louzhu">[楼主]</span>2008-01-31 16:43 |
-            <a  href="#" target="_blank">
-            <b>杨正祎</b></a> </div>
-        <div class="feedbackCon">
-            我们建议你通过只修改css文件的方式来建立新的皮肤。 <br>
-            <br>
-            不建议对静态页面进行结构上的修改（非结构上的修改是允许的，例如图片地址的修正等）。<br>
-        </div>
+            <div class="feedbackManage">&nbsp; <a href="#">回复</a>&nbsp; <a href="#">引用</a>&nbsp;<a  href="#">删除</a>&nbsp;<a id="" href="#">修改</a></div>
+            <a href="#">#{{forloop.counter}}楼</a>&nbsp;<a name="1089695"></a>{% ifequal comment.username blog.author %}<span class="louzhu">[楼主]</span>{% endifequal %}{{ comment.time|date:"Y-m-j H:i" }} | <a href="{{ comment.userlink }}"><b>{{ comment.username }}</b></a>
+		</div>
+        <div class="feedbackCon">{{ comment.content }}</div>
     </div>
-    <div class="feedbackItem">
-        <div class="feedbackListSubtitle">
-            <div class="feedbackManage">
-&nbsp; <a href="#">回复</a>&nbsp; <a href="#">引用</a>&nbsp;
-                <a id="AjaxHolder_Comments_CommentList_ctl01_DeleteLink" href="#">
-                删除</a>&nbsp;
-                <a id="AjaxHolder_Comments_CommentList_ctl01_EditLink" href="#">
-                修改</a> </div>
-            <a href="#">#2楼</a>&nbsp;<a name="1089695"></a><span class="louzhu">[楼主]</span>2008-01-31 16:46 |
-            <a id="AjaxHolder_Comments_CommentList_ctl01_NameLink" href="#" target="_blank">
-            <b>杨正祎</b></a> </div>
-        <div class="feedbackCon">
-            内部可以通过地址： <br>
-            <a href="http://192.168.18.221/nimand" target="_new">
-            http://192.168.18.221/nimand</a> 访问新的博客皮肤示例。<br>
-        </div>
-    </div>
-    <div class="feedbackItem">
-        <div class="feedbackListSubtitle">
-            <div class="feedbackManage">
-&nbsp; <a href="#">回复</a>&nbsp; <a href="#">引用</a>&nbsp;
-                <a id="AjaxHolder_Comments_CommentList_ctl02_DeleteLink" href="#">
-                删除</a>&nbsp;
-                <a id="AjaxHolder_Comments_CommentList_ctl02_EditLink" causesvalidation="False">
-                </a>&nbsp;</div>
-            <a href="#">#3楼</a>&nbsp; 2008-01-31 17:06 |
-            <a id="AjaxHolder_Comments_CommentList_ctl02_NameLink" href="#" target="_blank">
-            <b>horsegy</b></a> </div>
-        <div class="feedbackCon">
-            yeah ~ <br>
-            太好了～<br>
-        </div>
-    </div>
-    <div class="feedbackItem">
-        <div class="feedbackListSubtitle">
-            <div class="feedbackManage">
-&nbsp; <a href="#">回复</a>&nbsp; <a href="#">引用</a>&nbsp;
-                <a id="AjaxHolder_Comments_CommentList_ctl03_DeleteLink" href="#">
-                删除</a>&nbsp;
-                <a id="AjaxHolder_Comments_CommentList_ctl03_EditLink" href="#">
-                修改</a> </div>
-            <a href="#">#4楼</a>&nbsp; 2008-01-31 17:20 |
-            <a id="AjaxHolder_Comments_CommentList_ctl03_NameLink" href="#" target="_blank">
-            <b>壹壹</b></a> </div>
-        <div class="feedbackCon">
-            附：IE6和IE7共存方法—— <br>
-            <a href="http://www.cnblogs.com/JustinYoung/archive/2007/09/11/889801.html" target="_new">
-            http://www.cnblogs.com/JustinYoung/archive/2007/09/11/889801.html</a><br>
-        </div>
-    </div>
-    <div class="feedbackItem">
-        <div class="feedbackListSubtitle">
-            <div class="feedbackManage">
-&nbsp; <a href="#">回复</a>&nbsp; <a href="#">引用</a>&nbsp;
-                <a id="AjaxHolder_Comments_CommentList_ctl04_DeleteLink" href="#">
-                删除</a>&nbsp;
-                <a id="AjaxHolder_Comments_CommentList_ctl04_EditLink">
-                </a>&nbsp;</div>
-            <a href="#">#5楼</a>&nbsp; 2008-01-31 21:00 |
-            <a id="AjaxHolder_Comments_CommentList_ctl04_NameLink" href="#" target="_blank">
-            <b>jinyuan_1985</b></a> </div>
-        <div class="feedbackCon">
-            慢慢琢磨……<br>
-        </div>
-    </div>
+    {% endfor %}
 </div>
-<div id="divRefreshComments">
-    <a href="#">刷新评论列表</a>&nbsp; </div>
 <div class="commentform">
-    <span id="AjaxHolder_PostComment_ltSubmitMsg" style="color: Red;">
-    </span><br />
-    <a name="Feedback"></a>
-    <div id="AjaxHolder_PostComment_divCommnentArea">
-        <table cellspacing="1" cellpadding="1" border="0">
-            <tr>
-                <td width="75"></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td width="55">标题</td>
-                <td>
-                <input type="text" value="re: From Switches to Targets: A Standardista's Journey" class="commenttb" style="width: 320px" /></td>
-                <td>
-                <span id="AjaxHolder_PostComment_RequiredFieldValidator1" style="color: Red; visibility: hidden;">
-                请输入标题</span></td>
-            </tr>
-            <tr>
-                <td>姓名</td>
-                <td>
-                <input name="AjaxHolder$PostComment$tbName" type="text" value="杨正祎" readonly="readonly" class="commenttb" style="width: 320px" /></td>
-                <td>
-                <span id="AjaxHolder_PostComment_RequiredFieldValidator2" style="color: Red; visibility: hidden;">
-                请输入你的姓名</span></td>
-            </tr>
-            <tr>
-                <td align="left" colspan="3"></td>
-            </tr>
-            <tr>
-                <td colspan="3">内容(提交失败后,可以通过“恢复上次提交”恢复刚刚提交的内容)
-                <span id="AjaxHolder_PostComment_RequiredFieldValidator3" style="color: Red; visibility: hidden;">
-                请输入评论内容</span><br />
-                <textarea name="AjaxHolder$PostComment$tbComment" rows="10" cols="40" class="commentTextBox" onkeydown="ctlent(event,'AjaxHolder_PostComment_tbComment')" style="Width: 400px; Height: 220px"></textarea></td>
-            </tr>
-            <tr>
-                <td colspan="3">
-                <span id="AjaxHolder_PostComment_Message" style="color: Red;">
-                </span></td>
-            </tr>
-            <tr>
-                <td colspan="3">
-                <input id="AjaxHolder_PostComment_chkIsNotify" type="checkbox" name="AjaxHolder$PostComment$chkIsNotify" tabindex="-1" /><label for="AjaxHolder_PostComment_chkIsNotify">有回复时邮件通知我</label></td>
-            </tr>
-            <tr>
-                <td height="23">
-                <input type="submit" name="AjaxHolder$PostComment$btnSubmit" value=" 提 交 " id="AjaxHolder_PostComment_btnSubmit" />
-                </td>
-                <td colspan="2" height="23">&nbsp;
-                <a id="AjaxHolder_PostComment_lnkLogin" href="#">
-                注销</a>&nbsp;&nbsp;&nbsp; <a href="#">新用户注册</a>&nbsp;
-                <a href="#">返回页首</a>&nbsp;
-                <a id="AjaxHolder_PostComment_lbRestore" href="#">
-                恢复上次提交</a>&nbsp;&nbsp;&nbsp;
-                <a id="AjaxHolder_PostComment_btnSubscibe" href="#">
-                订阅回复</a>&nbsp;&nbsp; </td>
-            </tr>
-            <tr>
-                <td colspan="3">[使用Ctrl+Enter键可以直接提交]</td>
-            </tr>
-            <tr>
-                <td colspan="3">该文被作者在 2008-01-30 15:32 编辑过</td>
-            </tr>
-            <tr>
-                <td colspan="3" height="5">&nbsp;</td>
-            </tr>
-            <tr>
-                <td colspan="3" height="5"><a href="#">看看谁阅读了该文章</a></td>
-            </tr>
-            <tr>
-                <td colspan="3" height="5"></td>
-            </tr>
-            <tr>
-                <td colspan="3"></td>
-            </tr>
-            <tr>
-                <td colspan="3"></td>
-            </tr>
-        </table>
-    </div>
-    <div style="color: Red; display: none;">
-    </div>
+	<form action="/blog/addcomment" method="post">
+    <table>
+        <tr>
+            <td width="45"></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>姓 名</td>
+            <td><input name="comment_username" type="text" class="commenttb" value="{{ user.nickname }}"/></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>主 页</td>
+            <td><input name="comment_userlink" type="text" value="" class="commenttb" /></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="3">内 容<br />
+            <textarea name="comment_content" rows="10" cols="30" class="commentTextBox" ></textarea></td>
+        </tr>
+        <tr>
+        	<td colspan="3"><div id="recaptcha_image"></div>
+            </td>
+        </tr>
+        <tr>
+        	<td><span class="recaptcha_only_if_image">验证码:</span></td>
+        	<td><input type="text" id="recaptcha_response_field" name="recaptcha_response_field" />&nbsp;&nbsp;<a href="javascript:Recaptcha.reload()">换一张试试</a>{{reCAPTCHA}}</td>
+            <td><div class="recaptcha_only_if_incorrect_sol" style="color:red">输入错误</div></td>
+        </tr>
+        <tr>
+            <td height="23" colspan="3"><input type="hidden" name="blog_id" value="{{ blog.key.id }}" />
+            <input type="submit" name="submit" value=" 提 交 " />
+            </td>
+        </tr>
+    </table>
+    </form>
 </div>
 {% endblock %}
