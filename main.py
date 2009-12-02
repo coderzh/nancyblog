@@ -35,6 +35,7 @@ def main():
         ('/archive/([12]\d\d\d)/(\d|[01]\d)/(\d|[0123]\d)/([-\w]+)/*$', blog.view.ViewBlog),
         ('/archive/([12]\d\d\d)/*$', blog.view.YearArchive),
         ('/archive/([12]\d\d\d)/(\d|[01]\d)/*$', blog.view.MonthArchive),
+        ('/blog/addcomment/*$', blog.view.AddComment),
 
         ('/admin/*$', admin.view.MainPage),
         ('/admin/addblog/*$', blog.view.AddBlog),

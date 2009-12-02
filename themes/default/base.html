@@ -6,6 +6,20 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta id="metaKeywords" name="keywords" content="博客,博客园,博客皮肤,博客园皮肤" />
 <link id="MainCss" type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+<!-- Include required JS files -->
+<script type="text/javascript" src="/syntaxhighlighter/src/shCore.js"></script>
+<!-- At least one brush, here we choose JS. You need to include a brush for every language you want to highlight -->
+<script type="text/javascript" src="/syntaxhighlighter/scripts/shBrushCSharp.js"></script>
+<script type="text/javascript" src="/syntaxhighlighter/scripts/shBrushPython.js"></script>
+	 
+<!-- Include *at least* the core style and default theme -->
+<link href="/syntaxhighlighter/styles/shCore.css" rel="stylesheet" type="text/css" />
+<link href="/syntaxhighlighter/styles/shThemeNancy.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript">
+	SyntaxHighlighter.defaults['gutter'] = true;
+	SyntaxHighlighter.all()
+</script>
 {% block inhead %}{% endblock %}
 </head>
 

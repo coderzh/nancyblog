@@ -21,6 +21,7 @@ import time
 
 import common.fckeditor as fckeditor
 import common.authorized as authorized
+from common.captcha import *
 from common.view import BaseRequestHandler
 from blog.models import *
 from admin.models import Settings
@@ -142,7 +143,8 @@ class EditBlog(BaseRequestHandler):
 class ViewBlog(BaseRequestHandler):
     def get(self, year, month, day, permalink):
         blog = Blog.all().filter('permalink =', permalink).get()
-        template_values = { 'blog': blog}
+        captcha = displayhtml('6LdMwQkAAAAAAPcIdSaDTkhqsrQxO-5f5WkrLorI')
+        template_values = { 'blog': blog, 'reCAPTCHA' : captcha }
         self.template_render('viewblog.html', template_values)
 
 class DeleteBlog(BaseRequestHandler):
@@ -171,3 +173,17 @@ class BlogList(BaseRequestHandler):
         
         template_values = { 'page' : pager }
         self.template_render('admin/bloglist.html', template_values)
+        
+class AddComment(BaseRequestHandler):
+    def post(self):
+        blog_id = self.request.POST.get('blog_id')
+        comment_username = self.request.POST.get('comment_username')
+        comment_content = self.request.POST.get('comment_content')
+        comment_userlink = self.request.POST.get('comment_userlink')
+
+        blog = Blog.get_by_id(int(blog_id))
+        
+        new_comment = BlogComment(username=comment_username, content=comment_content, userlink=comment_userlink, blog=blog)
+        new_comment.put()
+        
+        self.redirect(blog.url)

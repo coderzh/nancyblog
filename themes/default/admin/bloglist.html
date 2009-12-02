@@ -14,7 +14,7 @@
     </thead>
     {% for blog in page.items %}
     <tr>
-        <td><a href="{{ blog.url }}">{{ blog.title }}</a></td>
+        <td><a href="{{ blog.url }}">{{ blog.title }}({{ blog.lastmodifytime|date:"Y-m-j H:i"}})</a></td>
         <td>{% if blog.draft %}草稿{% else%}已发布{% endif %}</td>
         <td>{{ blog.viewcount }}</td>
         <td>{{ blog.comments_count }}</td>
