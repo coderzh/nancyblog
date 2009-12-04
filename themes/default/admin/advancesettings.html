@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block inhead %}
+<script type="text/javascript" src="/javascript/jquery.js"></script>
+<script type="text/javascript">
+$(document).ready(function (){
+	floatform = $(".cmxform");
+	floatform.hide();
+});
+
+function EditSettings(id, name, value, description) {
+	$(".cmxform").show();
+	$("input#cname").val(name);
+	$("input#cvalue").val(value);
+	$("textarea#cdescription").val(description);
+	$("input#csetting_id").val(id);
+};
+
+</script>
+
+{% endblock %}
+
+{% block mainContent %}
+<h1 class="PostListTitle">参数列表</h1>
+<table class="cz-table">
+    <thead>
+    <tr>
+        <th width='15%'>名称</th>
+        <th width='15%'>值</th>
+        <th width=''>说明</th>
+        <th width='8%'>操作</th>
+        <th width='8%'>操作</th>
+    </tr>
+    </thead>
+    {% for setting in page.items %}
+    <tr>
+        <td>{{setting.name}}</td>
+        <td>{{setting.value}}</td>
+        <td>{{setting.description}}</td>
+        <td><a href="#settingForm" onclick="EditSettings('{{setting.key.id}}','{{setting.name}}','{{setting.value}}','{{setting.description}}')">编辑</a></td>
+        <td><a href="{{setting.delete_url}}" onclick="return window.confirm('确定删除这个设置吗?');">删除</a></td>
+    </tr>
+    {% endfor %}
+    <tfoot>
+    <tr>
+    	<td colspan="5" align="right">{% include "../pager.html" %}</td>
+    </tr>
+    </tfoot>
+</table>
+<form class="cmxform" id="settingForm" method="post" action="/admin/editsettings">
+	<fieldset>
+	    <legend>修改设置</legend>
+		<p>
+			<label for="cname">名称</label>
+			<input id="cname" name="name" size="30" />
+		</p>
+		<p>
+			<label for="cvalue">值</label>
+			<input id="cvalue" name="value" value="" size="30" />
+		</p>
+		<p>
+			<label for="cdescription">说明</label>
+			<textarea id="cdescription" name="description" rows="6" cols="30"></textarea>
+		</p>
+		<p><input type="hidden" id="csetting_id" name="setting_id" /><input class="submit" type="submit" value="修改"/></p>
+	</fieldset>
+</form>
+{% endblock %}
+
+{% block sideBar %}
+<div class="catListEssay">
+    <h3 class="catListTitle">操作</h3>
+    <ul>
+        <li><a href="/admin/basicsettings">» 基本设置</a></li>
+        <li><a href="/admin/displaysettings">» 显示参数</a></li>
+        <li><a href="/admin/advancesettings">» 高级设置</a></li>
+    </ul>
+</div>
+{% endblock%}

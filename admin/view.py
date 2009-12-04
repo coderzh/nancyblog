@@ -16,10 +16,14 @@
 
 __author__ = 'CoderZh'
 
-from blog.models import Category, BlogCategory
-import common.authorized as authorized
-from common.view import BaseRequestHandler
 from google.appengine.ext import db
+
+from admin.models import Settings
+from common.config import DisplayInfo
+from common.view import BaseRequestHandler, Pager
+from blog.models import Category, BlogCategory
+
+import common.authorized as authorized
 
 class MainPage(BaseRequestHandler):
     @authorized.role('admin')
@@ -66,3 +70,43 @@ class DeleteCategory(BaseRequestHandler):
         if category_id:
             Category.delete_by_id(category_id)
         self.redirect('/admin/categorylist')
+        
+class AdvanceSettings(BaseRequestHandler):
+    @authorized.role('admin')
+    def get(self):
+        page_index = self.request.GET.get('page')
+        if not page_index:
+            page_index = 1
+        else:
+            try:
+                page_index = int(page_index)
+            except:
+                page_index = 1
+                
+        pager = Pager('/admin/advancesettings', page_index, DisplayInfo().admin_pages, Settings)
+        
+        template_values = { 'page' : pager }
+        self.template_render('admin/advancesettings.html', template_values)
+        
+class DeleteSettings(BaseRequestHandler):
+    @authorized.role('admin')
+    def get(self):
+        try:
+            setting_id = self.request.GET.get('id')
+            Settings.delete_setting(setting_id)
+            self.redirect('/admin/advancesettings')
+        except:
+            self.error(500)
+            
+class EditSettings(BaseRequestHandler):
+    @authorized.role('admin')
+    def post(self):
+        try:
+            setting_id = self.request.POST.get('setting_id')
+            name = self.request.POST.get('name')
+            value = self.request.POST.get('value')
+            description = self.request.POST.get('description')
+            Settings.update_setting(setting_id, name, value, description)
+            self.redirect('/admin/advancesettings')
+        except:
+            self.error(500)

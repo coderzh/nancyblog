@@ -19,12 +19,12 @@
         <td>{{ blog.viewcount }}</td>
         <td>{{ blog.comments_count }}</td>
         <td><a href="{{ blog.edit_url }}">编辑</a></td>
-        <td><a href="{{ blog.delete_url }}" onclick="return window.confirm('确认删除这篇博客吗?');">删除</a></td>
+        <td><a href="{{ blog.delete_url }}" onclick="return window.confirm('确定删除这篇博客吗?');">删除</a></td>
     </tr>
     {% endfor %}
     <tfoot>
     <tr>
-    	<td colspan="6" align="right">共{{ page.count }}页{% ifnotequal page.index 1 %}&nbsp;<a href="/admin/bloglist?page=1">首页</a>&nbsp;<a href="/admin/bloglist?page={{page.index|add:"-1"}}">上一页</a>{% endifnotequal %}{% for pagelink in page.besidelinks %}&nbsp;<a href="/admin/bloglist?page={{pagelink}}">{% ifequal page.index pagelink %}<b>{{ pagelink }}</b>{% else %}{{ pagelink }}{% endifequal %}</a>{% endfor %}{% ifnotequal page.index page.last %}&nbsp;<a href="/admin/bloglist?page={{page.index|add:"1"}}">下一页</a>&nbsp;<a href="/admin/bloglist?page={{page.last}}">末页</a>{% endifnotequal %}</td>
+    	<td colspan="6" align="right">{% include "../pager.html" %}</td>
     </tr>
     </tfoot>
 </table>

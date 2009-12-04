@@ -16,7 +16,6 @@
 
 __author__ = 'CoderZh'
 
-import common.config as config
 from common.models import BaseModel
 
 from google.appengine.ext import db
@@ -25,30 +24,66 @@ from google.appengine.api import memcache
 class Settings(BaseModel):
     name = db.StringProperty()
     value = db.TextProperty()
+    description = db.TextProperty()
 
     @staticmethod
-    def get_value(name, default_value = None):
-        setting_item = memcache.get(name)
-        
+    def get_value(name, default_value = None, default_description = None):
+        key = 'setting_%s' % name
+        setting_item = memcache.get(key)
         if setting_item is None:
             setting_item = Settings.all().filter('name =', name).get()
             if not setting_item:
-                setting_item = Settings(name = name, value = str(default_value))
+                setting_item = Settings(name = name, value = unicode(default_value), description = unicode(default_description))
                 setting_item.put()
-            
-            memcache.add(name, setting_item)
+            memcache.add(key, setting_item)
             
         return setting_item.value
-
-
-class BlogInfo():
-    _instance = None
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
-        return cls._instance
     
-    def __init__(self):
-        self.title = Settings.get_value('blogtitle', config.BlogTitle)
-        self.author = Settings.get_value('author', config.Author)
-        self.homepage = Settings.get_value('homepage', config.HomePage)
+    @staticmethod
+    def update_value(name, value):
+        setting_item = Settings.all().filter('name =', name).get()
+        if not setting_item:
+            return
+        
+        setting_item.value = db.Text(value)
+        setting_item.put()
+            
+        key = 'setting_%s' % name
+        value = memcache.get(key)
+        if value is not None:
+            memcache.set(key, setting_item)
+        else:
+            memcache.add(key, setting_item)
+    
+    @staticmethod
+    def delete_setting(id):
+        setting_item = Settings.get_by_id(int(id))
+        if setting_item:
+            key = 'setting_%s' % setting_item.name
+            memcache.delete(key)
+            setting_item.delete()
+            
+    @staticmethod
+    def update_setting(id, name, value, description):
+        setting_item = Settings.get_by_id(int(id))
+        if setting_item:
+            key = 'setting_%s' % setting_item.name
+            setting_item.name = name
+            setting_item.value = value
+            setting_item.description = description
+            setting_item.put()
+            
+            value = memcache.get(key)
+            if value is not None:
+                memcache.set(key, setting_item)
+            else:
+                memcache.add(key, setting_item)
+                
+           
+    @property
+    def edit_url(self):
+        return '/admin/editsettings?id=%s' % self.key().id()
+    
+    @property
+    def delete_url(self):
+        return '/admin/deletesettings?id=%s' % self.key().id()

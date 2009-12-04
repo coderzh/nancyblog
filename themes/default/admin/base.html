@@ -2,9 +2,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head id="Head">
-<title>Hello {{ bloginfo.title }}</title>
+<title>{{ bloginfo.blogtitle }}</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta id="metaKeywords" name="keywords" content="博客,博客园,博客皮肤,博客园皮肤" />
+<meta id="metaKeywords" name="keywords" content="NancyBlog,博客,Google App Engine,Blog" />
 <link id="MainCss" type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
 {% block inhead %}{% endblock %}
 </head>
@@ -16,20 +16,16 @@
 		<div id="blogTitle">
 			<a id="lnkBlogLogo" href="#">
 			<img id="blogLogo" src="/images/logo.gif" alt="博客logo" /></a>
-			<h1><a class="headermaintitle" href="/">Yes!B/S!</a></h1>
-			<h2>Justin Young&#39;s blog</h2>
+			<h1><a class="headermaintitle" href="{{ bloginfo.homepage }}">{{ bloginfo.blogtitle }}</a></h1>
+			<h2>{{ bloginfo.subtitle }}</h2>
 		</div>
 		<!--end: blogTitle 博客的标题和副标题 -->
 		<div id="navigator">
 			<ul id="navList">
-				<li><a class="menu" href="/admin">首页</a></li>
+				<li><a class="menu" href="/">博客首页</a></li>
 				<li><a class="menu" href="/admin/bloglist">文章列表</a></li>
 				<li><a class="menu" href="/admin/categorylist">类别管理</a></li>
-				<li><a class="menu" href="GalleryThumbNailViewer.htm">相册</a></li>
-				<li><a href="Profile.htm" class="menu">留言</a></li>
-				<li><a class="menu" href="#">订阅</a>
-				<a class="aHeaderXML" href="#">
-				<img src="/images/rss.gif" alt="订阅" /></a></li>
+				<li><a class="menu" href="/admin/advancesettings">选项</a></li>
 			</ul>
 			<div class="blogStats">
 				随笔- 99999&nbsp; 文章- 99999&nbsp; 评论- 9999999&nbsp; </div>
