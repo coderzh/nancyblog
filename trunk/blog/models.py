@@ -84,6 +84,14 @@ class Blog(BaseModel):
 			count = BlogComment.all().filter('blog =', self).count()
 			memcache.add(key, count)
 		return count
+	
+	def decrease_comments_count(self):
+		key = '%s_comments_count' % self.permalink
+		memcache.decr(key)
+	
+	def increase_comments_count(self):
+		key = '%s_comments_count' % self.permalink
+		memcache.incr(key)
 		
 	@property
 	def edit_url(self):
@@ -125,38 +133,12 @@ class Blog(BaseModel):
 class BlogComment(BaseModel):
 	content = db.TextProperty()
 	username = db.StringProperty()
-	userlink = db.StringProperty()
+	email = db.EmailProperty()
+	userlink = db.LinkProperty()
 	blog = db.ReferenceProperty(Blog)
 	time = db.DateTimeProperty(auto_now=True)
 	
 class BlogCategory(BaseModel):
 	blog = db.ReferenceProperty(Blog)
 	category = db.ReferenceProperty(Category)
-	
-class Pager:
-	def __init__(self, model_class, current_index, numbers_per_page):
-		self.model_class = model_class
-		self.index = current_index
-		self.numbers_per_page = int(numbers_per_page)
-		
-		self.items_count = model_class.count_all()
-		self.count = self.items_count / self.numbers_per_page
-		if self.items_count % self.numbers_per_page != 0 or self.count == 0:
-			self.count = self.count + 1
-		
-		self.first = 1
-		self.last = self.count
-		self.besidelinks = self._get_besidelinks(self.index, self.count)
-		self.items = self._get_items(self.numbers_per_page, self.index)
-
-	def _get_besidelinks(self, index, count, numbers = 5):
-		start = index - numbers if index - numbers > 0 else 1
-		end = index + numbers if index + numbers <= count else count
-		return range(start, end + 1)
-	
-	def _get_items(self, numbers_per_page, page_index):
-		items = self.model_class.all().fetch(numbers_per_page, page_index - 1)
-		if not items:
-			items = []
-		return items
 		

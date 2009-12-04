@@ -16,14 +16,60 @@
 
 __author__ = 'CoderZh'
 
-Debug = True
+from admin.models import Settings
 
-Author = 'CoderZh'
-Email = 'coderzh@gmail.com'
-HomePage = 'http://coderzh.cnblogs.com'
+DEBUG = True
 
-BlogTitle = 'Nancy Blog'
+THEMES_FOLDER = 'themes'
+THEMES = 'default'
 
-Theme_Name = 'theme'
-Theme_DefaultValue = 'default'
-Theme_Folder = 'themes'
+class BaseInfo(object):
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, value)
+        Settings.update_value(name, value)
+
+class BlogInfo(BaseInfo):        
+    @property
+    def author(self):
+        return Settings.get_value('author', 'CoderZh', u'博客作者名称')
+    
+    @property
+    def email(self):
+        return Settings.get_value('email', 'coderzh@gmail.com', u'作者邮箱')
+    
+    @property
+    def homepage(self):
+        return Settings.get_value('homepage', 'http://coderzh.cnblogs.com', u'作者主页')
+    
+    @property
+    def blogtitle(self):
+        return Settings.get_value('blogtitle', 'Nancy Blog', u'博客标题')
+    
+    @property
+    def subtitle(self):
+        return Settings.get_value('subtitle', 'This is NancyBlog', u'子标题')
+    
+    @property
+    def theme(self):
+        return Settings.get_value('theme', 'default', u'博客皮肤')
+    
+    @property
+    def announce(self):
+        return Settings.get_value('announce', u'欢迎使用NancyBlog', u'公告')
+        
+class DisplayInfo(BaseInfo):
+        
+    @property
+    def admin_pages(self):
+        return int(Settings.get_value('admin_pages', '20', u'管理页面每页显示条数'))
+    
+    @property
+    def blog_pages(self):
+        return int(Settings.get_value('blog_pages', '20', u'首页博客每页显示条数'))
+    
+    @property
+    def comment_pages(self):
+        return int(Settings.get_value('comment_pages', '50', u'评论每页显示条数'))
+        
+class InternalInfo(BaseInfo):
+    pass

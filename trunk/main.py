@@ -19,7 +19,7 @@ __author__ = 'CoderZh'
 import wsgiref.handlers
 from google.appengine.ext import webapp
 
-import common.config as config
+from common.config import DEBUG
 import blog.view
 import admin.view
 
@@ -36,8 +36,10 @@ def main():
         ('/archive/([12]\d\d\d)/*$', blog.view.YearArchive),
         ('/archive/([12]\d\d\d)/(\d|[01]\d)/*$', blog.view.MonthArchive),
         ('/blog/addcomment/*$', blog.view.AddComment),
+        ('/blog/editcomment/*$', blog.view.EditComment),
+        ('/blog/deletecomment/*$', blog.view.DeleteComment),
 
-        ('/admin/*$', admin.view.MainPage),
+        ('/admin/*$', blog.view.BlogList),
         ('/admin/addblog/*$', blog.view.AddBlog),
         ('/admin/editblog/*$', blog.view.EditBlog),
         ('/admin/bloglist/*$', blog.view.BlogList),
@@ -45,12 +47,16 @@ def main():
         ('/admin/categorylist/*$', admin.view.CategoryList),
         ('/admin/addcategory/*$', admin.view.AddCategory),
         ('/admin/deletecategory/*$', admin.view.DeleteCategory),
+        
+        ('/admin/advancesettings/*$', admin.view.AdvanceSettings),
+        ('/admin/deletesettings/*$', admin.view.DeleteSettings),
+        ('/admin/editsettings/*$', admin.view.EditSettings),
         #('/search/(.*)/*$', blog.SearchHandler),
         #('/tag/(.*)', blog.TagHandler),
         #('/delicious/(.*)', blog.DeliciousHandler),
         #('/atom/*$', blog.FeedHandler),
         #('/sitemap/*$', blog.SiteMapHandler),
-    ], debug = config.Debug)
+    ], debug = DEBUG)
     
     wsgiref.handlers.CGIHandler().run(application)
 

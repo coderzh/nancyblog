@@ -22,7 +22,8 @@ import time
 import common.fckeditor as fckeditor
 import common.authorized as authorized
 from common.captcha import *
-from common.view import BaseRequestHandler
+from common.config import DisplayInfo
+from common.view import BaseRequestHandler, Pager
 from blog.models import *
 from admin.models import Settings
 
@@ -33,16 +34,6 @@ class MainPage(BaseRequestHandler):
             'blogs': blogs,
             }
         self.template_render('default.html', template_values)
-        
-class ImagesHandler(BaseRequestHandler):
-    def get(self, path):
-        theme = 'default'
-        self.redirect('/static/' + theme + '/images/' + path)
-
-class StyleSheetsHandler(BaseRequestHandler):
-    def get(self, path):
-        theme = 'default'
-        self.redirect('/static/' + theme + '/stylesheets/' + path)
                 
 class YearArchive(BaseRequestHandler):
     def get(self, year):
@@ -166,24 +157,63 @@ class BlogList(BaseRequestHandler):
                 page_index = int(page_index)
             except:
                 page_index = 1
-                        
-        numbers_per_page = Settings.get_value('numbers_per_page_bloglist', 20)
-        
-        pager = Pager(Blog, page_index, numbers_per_page)
+                
+        pager = Pager('/admin/bloglist', page_index, DisplayInfo().admin_pages, Blog)
         
         template_values = { 'page' : pager }
         self.template_render('admin/bloglist.html', template_values)
         
 class AddComment(BaseRequestHandler):
     def post(self):
-        blog_id = self.request.POST.get('blog_id')
-        comment_username = self.request.POST.get('comment_username')
-        comment_content = self.request.POST.get('comment_content')
-        comment_userlink = self.request.POST.get('comment_userlink')
-
-        blog = Blog.get_by_id(int(blog_id))
-        
-        new_comment = BlogComment(username=comment_username, content=comment_content, userlink=comment_userlink, blog=blog)
-        new_comment.put()
-        
-        self.redirect(blog.url)
+        self.response.headers['Content-Type'] = 'text/plain'
+        try:            
+            blog_id = self.request.POST.get('blog_id')
+            name = self.request.POST.get('name')
+            comment = self.request.POST.get('comment')
+            url = self.request.POST.get('url')
+            email = self.request.POST.get('email')
+    
+            comment = comment.replace('\n', '<br />')
+            recaptcha_challenge_field = self.request.POST.get('recaptcha_challenge_field')
+            recaptcha_response_field = self.request.POST.get('recaptcha_response_field')
+            valifation_result = submit(recaptcha_challenge_field, recaptcha_response_field,'6LdMwQkAAAAAALf6TyLYGIZyuWdDM0CItskn7Ck3', self.request.remote_addr)
+    
+            blog = Blog.get_by_id(int(blog_id))
+            
+            if (not valifation_result.is_valid) or (not blog):
+                self.response.out.write('0')
+                return
+                    
+            new_comment = BlogComment(username=name, content=comment, blog=blog)
+            if email:
+                new_comment.email = email
+            if url:
+                new_comment.userlink = url
+            new_comment.put()
+            
+            blog.increase_comments_count()
+            
+            self.response.out.write('1')
+        except:
+            self.response.out.write('-1')
+            
+class DeleteComment(BaseRequestHandler):
+    @authorized.role('admin')
+    def get(self):
+        comment_id = self.request.GET.get('id')
+        try:
+            comment = BlogComment.get_by_id(int(comment_id))
+            if comment:
+                blog = comment.blog
+                comment.delete()
+                blog.decrese_comments_count()
+                self.redirect(blog.url)
+            else:
+                self.redirect('/')
+        except:
+            self.redirect('/')
+            
+class EditComment(BaseRequestHandler):
+    @authorized.role('admin')
+    def get(self):
+        pass

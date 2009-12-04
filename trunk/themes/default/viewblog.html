@@ -2,81 +2,75 @@
 
 {% block inhead %}
 
+<script type="text/javascript" src="/javascript/jquery.js"></script>
+<script type="text/javascript" src="/javascript/jquery.validate.js"></script> 
+<script type="text/javascript" src="/javascript/common.js"></script>
+
+<script type="text/javascript">
+var RecaptchaOptions = { theme: 'custom',lang: 'en' };
+</script>
+
 {% endblock %}
 {% block mainContent %}
-<script>
-var RecaptchaOptions = {
-   theme: 'custom',
-   lang: 'en'
-};
-</script>
 
 <div id="topics">
     <div class="post">
         <h1 class="postTitle"><a class="postTitle2" href="{{ blog.url }}">{{ blog.title }}</a> </h1>
-        <div class="clear">
+        <div class="clear"><input type="hidden" value="{{blog.key.id}}" id="blogid" />
         </div>
         <div class="postBody">
             {{ blog.content }}
             <div id="EntryTag">Tag标签: {% for tag in blog.tags %}<a href="/tag/{{tag}}">{{ tag }}</a>{% endfor %}</div>
         </div>
         <div class="postDesc">
-                post@ {{ blog.publishdate|date:"Y-m-j H:i" }}{{ blog.author.nickname }}<a href="#">评论({{ blog.comments_count }})</a>&nbsp; <a href="{{ blog.edit_url }}">编辑</a>&nbsp;
+                post@ {{ blog.publishdate|date:"Y-m-j H:i" }}&nbsp;{{ blog.author.nickname }}&nbsp;<a href="#">评论({{ blog.comments_count }})</a>&nbsp; <a href="{{ blog.edit_url }}">编辑</a>&nbsp;
             <a href="#">收藏</a> 所属分类: {% for category in blog.categories %}{% if category.visible %}<a href="/category/{{ category.name }}">{{ category.name }}</a>{% endif %}{% endfor %}
             <a class="aPostDescFav" href="#">网摘收藏</a></div>
     </div>
 </div>
 <!--end: topics 文章、评论容器-->
-<div id="AjaxHolder_UpdatePanel1">
-    <div class="feedback_area_title">发表评论</div>
+<div id="commentList">
+    <div class="feedback_area_title">评论列表</div>
     <div class="feedbackNoItems"></div>
     {% for comment in blog.comments %}
     <div class="feedbackItem">
         <div class="feedbackListSubtitle">
-            <div class="feedbackManage">&nbsp; <a href="#">回复</a>&nbsp; <a href="#">引用</a>&nbsp;<a  href="#">删除</a>&nbsp;<a id="" href="#">修改</a></div>
-            <a href="#">#{{forloop.counter}}楼</a>&nbsp;<a name="1089695"></a>{% ifequal comment.username blog.author %}<span class="louzhu">[楼主]</span>{% endifequal %}{{ comment.time|date:"Y-m-j H:i" }} | <a href="{{ comment.userlink }}"><b>{{ comment.username }}</b></a>
+            <div class="feedbackManage">&nbsp; <a href="#commentForm" onclick="ReplyComment('{{comment.username}}')">回复</a>&nbsp; <a href="#commentForm" onclick="QueteComment('{{comment.username}}','{{comment.content}}')">引用</a>&nbsp;{% if is_admin %}<a href="/blog/deletecomment?id={{comment.key.id}}">删除</a>&nbsp;<a href="#">修改</a>{% endif %}</div>
+            <a href="#">#{{forloop.counter}}楼</a>&nbsp;<a name="1089695"></a>{% ifequal comment.username blog.author %}<span class="louzhu">[楼主]</span>{% endifequal %}{{ comment.time|date:"Y-m-j H:i" }} | {% if comment.userlink %}<a href="{{ comment.userlink }}"><b>{{ comment.username }}</b></a>{% else %}<b>{{ comment.username }}</b>{% endif %}
 		</div>
         <div class="feedbackCon">{{ comment.content }}</div>
     </div>
     {% endfor %}
 </div>
-<div class="commentform">
-	<form action="/blog/addcomment" method="post">
-    <table>
-        <tr>
-            <td width="45"></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>姓 名</td>
-            <td><input name="comment_username" type="text" class="commenttb" value="{{ user.nickname }}"/></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>主 页</td>
-            <td><input name="comment_userlink" type="text" value="" class="commenttb" /></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td colspan="3">内 容<br />
-            <textarea name="comment_content" rows="10" cols="30" class="commentTextBox" ></textarea></td>
-        </tr>
-        <tr>
-        	<td colspan="3"><div id="recaptcha_image"></div>
-            </td>
-        </tr>
-        <tr>
-        	<td><span class="recaptcha_only_if_image">验证码:</span></td>
-        	<td><input type="text" id="recaptcha_response_field" name="recaptcha_response_field" />&nbsp;&nbsp;<a href="javascript:Recaptcha.reload()">换一张试试</a>{{reCAPTCHA}}</td>
-            <td><div class="recaptcha_only_if_incorrect_sol" style="color:red">输入错误</div></td>
-        </tr>
-        <tr>
-            <td height="23" colspan="3"><input type="hidden" name="blog_id" value="{{ blog.key.id }}" />
-            <input type="submit" name="submit" value=" 提 交 " />
-            </td>
-        </tr>
-    </table>
-    </form>
-</div>
+<form class="cmxform" id="commentForm" method="post" action="">
+	<fieldset>
+	    <legend>来个评论吧</legend>
+		<p>
+			<label for="cname">姓 名</label>
+			<input name="name" class="required" id="cname" size="42" minlength="2" />
+        </p>
+		<p>
+			<label for="cemail">邮箱(可选)</label>
+			<input id="cemail" name="email" class="email" size="42" />
+		</p>
+		<p>
+			<label for="curl">主页(可选)</label>
+			<input id="curl" name="url" class="url" value="" size="42" />
+		</p>
+		<p>
+			<label for="ccomment">评 论</label>
+			<textarea id="ccomment" name="comment" rows="12" cols="52" class="required"></textarea>
+		</p>
+        <p>
+        	<a href="javascript:Recaptcha.reload()"><div id="recaptcha_image"></div></a>
+        </p>
+        <p>
+        	<label for="url" id="url_label">验证码</label>
+            <input type="text" id="recaptcha_response_field" name="recaptcha_response_field" />{{reCAPTCHA}}
+        </p>
+		<p>
+			<input class="submit" type="submit" value="提交"/>&nbsp;&nbsp;&nbsp;&nbsp;<span id="message"></span>
+		</p>
+	</fieldset>
+</form>
 {% endblock %}
