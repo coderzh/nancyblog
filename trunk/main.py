@@ -23,6 +23,9 @@ from common.config import DEBUG
 import blog.view
 import admin.view
 
+from google.appengine.ext.webapp import template
+template.register_template_library('common.filter')
+
 def main():
     application = webapp.WSGIApplication([
         ('/*$', blog.view.MainPage),
@@ -52,8 +55,8 @@ def main():
         ('/admin/deletesettings/*$', admin.view.DeleteSettings),
         ('/admin/editsettings/*$', admin.view.EditSettings),
         #('/search/(.*)/*$', blog.SearchHandler),
-        #('/tag/(.*)', blog.TagHandler),
-        #('/delicious/(.*)', blog.DeliciousHandler),
+        ('/tag/(.*)/*$', blog.view.ViewTag),
+        ('/category/(.*)/*$', blog.view.ViewCategory),
         #('/atom/*$', blog.FeedHandler),
         #('/sitemap/*$', blog.SiteMapHandler),
     ], debug = DEBUG)

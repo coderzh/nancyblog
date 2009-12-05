@@ -31,7 +31,7 @@
         <textarea id="category_description" name="category_description" rows="5" cols="49">{% if editcategory %}{{editcategory.description}}{% endif %}</textarea>
     </div>
     <div>
-        <input type="checkbox" id="category_visible" name="category_visible" {% if editcategory %}{% if editcategory.visible %}checked="checked"{% endif %}{% endif %} />
+        <input type="checkbox" id="category_visible" name="category_visible" {% if editcategory %}{% if editcategory.visible %}checked="checked"{% endif %}{% else %}checked="checked"{% endif %} />
         <label for="category_visible"><b>Visible</b></label>
     </div>
     <div>

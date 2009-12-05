@@ -40,4 +40,4 @@ class BaseModel(db.Model):
 		"""
 		Count *all* of the rows (without maxing out at 1000)
 		"""
-		return get_records_count(cls.all())
+		return get_records_count(cls.all()) 
