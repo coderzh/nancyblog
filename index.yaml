@@ -16,3 +16,11 @@ indexes:
   - name: draft
   - name: publishdate
     direction: desc
+
+- kind: Blog
+  properties:
+  - name: disabled
+  - name: draft
+  - name: tags
+  - name: publishdate
+    direction: desc

@@ -70,6 +70,7 @@ class DisplayInfo(BaseInfo):
     @property
     def comment_pages(self):
         return int(Settings.get_value('comment_pages', '50', u'评论每页显示条数'))
-        
-class InternalInfo(BaseInfo):
-    pass
+    
+    @property
+    def tag_pages(self):
+        return int(Settings.get_value('tag_pages', '50', u'Tag每页显示条数'))

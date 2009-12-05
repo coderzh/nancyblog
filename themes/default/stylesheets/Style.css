@@ -322,47 +322,9 @@ a:active {
 	padding: 15px 0 5px 0px;
 	margin-bottom: 8px;
 }
-/**日历控件样式开始**/
-#calendar {
-	width: 229px;
-}
-#calendar .Cal {
-	width: 100%;
-	line-height: 1.5em;
-}
-.Cal {/**日历容器table**/
-	border: none;
-	color: #666;
-}
-#calendar table a:link, #calendar table a:visited, #calendar table a:active {
-	font-weight: bold;
-}
-#calendar table a:hover {
-	color: white;
-	text-decoration: none;
-	background-color: #F60;
-}
-.CalTodayDay{/**今天日期样式**/
-	color:#f60;
-}
-#calendar .CalNextPrev a:link,#calendar  .CalNextPrev a:visited, #calendar .CalNextPrev a:active {/**上个月、下个月箭头样式**/
-	font-weight: bold;
-	background-color: white;
-}
-.CalDayHeader{
-	border-bottom:1px solid #ccc;	
-}
-.CalTitle{/**日历年月头部样式**/
-	width:100%;
-	background:white;
-	color:black;
-	border-bottom:1px solid #666;	
-}
 
-/**日历控件样式结束**/
-
-.catListEssay ul li {
-	margin-bottom:8px;
+.catListLink ul li {
+	margin-bottom:5px;
 }
 
 .catListTitle {

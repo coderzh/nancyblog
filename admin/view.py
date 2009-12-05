@@ -51,14 +51,9 @@ class AddCategory(BaseRequestHandler):
         edit_categoryid = self.request.POST.get('editcategoryid')
 
         if edit_categoryid:
-            edit_category = Category.get_by_id(int(edit_categoryid))
-            edit_category.name = category_name
-            edit_category.description = category_description
-            edit_category.visible = category_visible == u'on'
-            edit_category.put()
+            Category.update_category(edit_categoryid, category_name, category_description, category_visible == u'on')
         else:
-            new_category = Category(name=category_name, description=category_description, visible=category_visible == u'on')
-            new_category.put()
+            Category.create_category(category_name, category_description, category_visible == u'on')
     
         self.redirect('/admin/categorylist')
         
@@ -66,10 +61,11 @@ class AddCategory(BaseRequestHandler):
 class DeleteCategory(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
-        category_id = self.request.GET.get('id')
-        if category_id:
-            Category.delete_by_id(category_id)
-        self.redirect('/admin/categorylist')
+        try:
+            category_id = self.request.GET.get('id')
+            Category.delete_category(category_id)
+        finally:
+            self.redirect('/admin/categorylist')
         
 class AdvanceSettings(BaseRequestHandler):
     @authorized.role('admin')
@@ -83,7 +79,8 @@ class AdvanceSettings(BaseRequestHandler):
             except:
                 page_index = 1
                 
-        pager = Pager('/admin/advancesettings', page_index, DisplayInfo().admin_pages, Settings)
+        pager = Pager('/admin/advancesettings', page_index, DisplayInfo().admin_pages)
+        pager.bind_model(Settings)
         
         template_values = { 'page' : pager }
         self.template_render('admin/advancesettings.html', template_values)

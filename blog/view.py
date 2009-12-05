@@ -19,6 +19,7 @@ __author__ = 'CoderZh'
 import os
 import time
 
+import cgi
 import common.fckeditor as fckeditor
 import common.authorized as authorized
 from common.captcha import *
@@ -27,13 +28,27 @@ from common.view import BaseRequestHandler, Pager
 from blog.models import *
 from admin.models import Settings
 
+from google.appengine.api import urlfetch,memcache
+
 class MainPage(BaseRequestHandler):
     def get(self):
-        blogs = Blog.get_blogs()
-        template_values = {
-            'blogs': blogs,
-            }
+        key_home = 'home'
+        #cache_home = memcache.get(key_home)
+        
+        #if cache_home is not None:
+        #    self.response.out.write(cache_home)
+        #    return
+        page_index = self.request.GET.get('page')                
+        pager = Pager('/', page_index, DisplayInfo().blog_pages)
+        pager.bind_datahandler(Blog.get_published_blogs_count(), Blog.get_published_blogs)
+        
+        template_values = { 
+            'page' : pager,
+        }
         self.template_render('default.html', template_values)
+        
+        #cache_home = self.response.out.getvalue()
+        #memcache.add(key_home, cache_home)
                 
 class YearArchive(BaseRequestHandler):
     def get(self, year):
@@ -66,18 +81,12 @@ class AddBlog(BaseRequestHandler):
         permalink = self.request.POST.get('permalink')
         tags = self.request.POST.get('tags').split()
         
-        new_blog = Blog(permalink=permalink, title=title, content=content, tags=tags)
-        new_blog.put()
+        new_blog = Blog.create_blog(permalink, title, content, tags)
         
-        if not new_blog.permalink:
-            new_blog.permalink = str(new_blog.key())
-            new_blog.put()
-
-        categories = Category.get_all_visible_categories(1000)
+        categories = Category.get_all_visible_categories()
         for category in categories:
             if self.request.POST.get('category_%s' % category.key().id()) is not None:
-                new_blogcategory = BlogCategory(blog=new_blog, category=category)
-                new_blogcategory.put()
+                BlogCategory.create_blogcategory(new_blog, category)
         
         self.redirect(new_blog.url)
         
@@ -103,30 +112,19 @@ class EditBlog(BaseRequestHandler):
         title = self.request.POST.get('title_input')
         content = self.request.POST.get('text_input')
         permalink = self.request.POST.get('permalink')
-        tags = self.request.POST.get('tags').split()
+        tags = self.request.POST.get('tags')
         
-        blog = Blog.get_by_id(int(blog_id))
-        if blog:
-            blog.title = title
-            blog.content = content
-            if permalink:
-                blog.permalink = permalink
-            blog.tags = tags
-            blog.put()
-        else:
-            blog = Blog(title=title, content=content, permalink=permalink, tags=tags)
-            blog.put()
-            if not permalink:
-                blog.permalink = str(blog.key())
-                blog.put()
+        blog = Blog.update_blog(blog_id, permalink, title, content, tags)
         
-        categories = Category.get_all_visible_categories(1000)
+        categories = Category.get_all_visible_categories()
         for category in categories:
+            blogcategory = BlogCategory.all().filter('blog =', blog).filter('category =', category).get()
             if self.request.POST.get('category_%s' % category.key().id()) is not None:
-                alreadyexits = BlogCategory.all().filter('blog =', blog).filter('category =', category).count()
-                if not alreadyexits:
-                    new_blogcategory = BlogCategory(blog=blog, category=category)
-                    new_blogcategory.put()
+                if not blogcategory:
+                    BlogCategory.create_blogcategory(blog, category)
+            else:
+                if blogcategory:
+                    BlogCategory.delete_blogcategory(blogcategory)
         
         self.redirect(blog.url)
         
@@ -135,7 +133,10 @@ class ViewBlog(BaseRequestHandler):
     def get(self, year, month, day, permalink):
         blog = Blog.all().filter('permalink =', permalink).get()
         captcha = displayhtml('6LdMwQkAAAAAAPcIdSaDTkhqsrQxO-5f5WkrLorI')
-        template_values = { 'blog': blog, 'reCAPTCHA' : captcha }
+        template_values = { 
+            'blog': blog,
+            'reCAPTCHA' : captcha,
+        }
         self.template_render('viewblog.html', template_values)
 
 class DeleteBlog(BaseRequestHandler):
@@ -143,22 +144,15 @@ class DeleteBlog(BaseRequestHandler):
     def get(self):
         blog_id = self.request.GET.get('id')
         if blog_id:
-            Blog.delete_by_id(blog_id)
+            Blog.delete_blog(blog_id)
         self.redirect('/admin/bloglist')
 
 class BlogList(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
-        page_index = self.request.GET.get('page')
-        if not page_index:
-            page_index = 1
-        else:
-            try:
-                page_index = int(page_index)
-            except:
-                page_index = 1
-                
-        pager = Pager('/admin/bloglist', page_index, DisplayInfo().admin_pages, Blog)
+        page_index = self.request.GET.get('page')                
+        pager = Pager('/admin/bloglist', page_index, DisplayInfo().admin_pages)
+        pager.bind_model(Blog)
         
         template_values = { 'page' : pager }
         self.template_render('admin/bloglist.html', template_values)
@@ -184,7 +178,7 @@ class AddComment(BaseRequestHandler):
                 self.response.out.write('0')
                 return
                     
-            new_comment = BlogComment(username=name, content=comment, blog=blog)
+            new_comment = BlogComment(username=cgi.escape(name), content=cgi.escape(comment), blog=cgi.escape(blog))
             if email:
                 new_comment.email = email
             if url:
@@ -217,3 +211,27 @@ class EditComment(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
         pass
+    
+class ViewTag(BaseRequestHandler):
+    def get(self, tag_name):
+        tag_name = urllib.unquote(tag_name).decode('utf-8')
+        page_index = self.request.GET.get('page')                
+        pager = Pager('/tag/%s' % tag_name, page_index, DisplayInfo().tag_pages)
+        pager.bind_datahandler(Tag.get_tag(tag_name).blogs_count,
+                               Blog.get_blogs_by_tag,
+                               tag_name)
+        
+        template_values = { 'page' : pager }
+        self.template_render('viewlist.html', template_values)
+        
+class ViewCategory(BaseRequestHandler):
+    def get(self, category_name):
+        category_name = urllib.unquote(category_name).decode('utf-8')
+        page_index = self.request.GET.get('page')
+        pager = Pager('/category/%s' % category_name, page_index, DisplayInfo().tag_pages)
+        pager.bind_datahandler(Category.get_blogs_count(category_name),
+                               Blog.get_blogs_by_category,
+                               category_name)
+        
+        template_values = { 'page' : pager }
+        self.template_render('viewlist.html', template_values)
