@@ -47,6 +47,7 @@ def main():
         ('/admin/editblog/*$', blog.view.EditBlog),
         ('/admin/bloglist/*$', blog.view.BlogList),
         ('/admin/deleteblog/*$', blog.view.DeleteBlog),
+        
         ('/admin/categorylist/*$', admin.view.CategoryList),
         ('/admin/addcategory/*$', admin.view.AddCategory),
         ('/admin/deletecategory/*$', admin.view.DeleteCategory),
@@ -54,6 +55,12 @@ def main():
         ('/admin/advancesettings/*$', admin.view.AdvanceSettings),
         ('/admin/deletesettings/*$', admin.view.DeleteSettings),
         ('/admin/editsettings/*$', admin.view.EditSettings),
+        
+        ('/admin/linklist/*$', admin.view.FriendlinkList),
+        ('/admin/addlink/*$', admin.view.AddFriendlink),
+        ('/admin/editlink/*$', admin.view.AddFriendlink),
+        ('/admin/deletelink/*$', admin.view.DeleteFriendlink),
+        
         #('/search/(.*)/*$', blog.SearchHandler),
         ('/tag/(.*)/*$', blog.view.ViewTag),
         ('/category/(.*)/*$', blog.view.ViewCategory),

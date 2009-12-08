@@ -18,7 +18,7 @@ __author__ = 'CoderZh'
 
 from google.appengine.ext import db
 
-from admin.models import Settings
+from admin.models import Settings, Friendlinks
 from common.config import DisplayInfo
 from common.view import BaseRequestHandler, Pager
 from blog.models import Category, BlogCategory
@@ -33,14 +33,17 @@ class MainPage(BaseRequestHandler):
 class CategoryList(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
-        tempalte_values = {}
+        template_values = {}
         editcategoryid = self.request.GET.get('editcategoryid')
         if editcategoryid:
-            tempalte_values['editcategory'] = Category.get_by_id(int(editcategoryid))
+            template_values['editcategory'] = Category.get_by_id(int(editcategoryid))
             
-        categories = Category.get_all()
-        tempalte_values['categories'] = categories
-        self.template_render('admin/categorylist.html', tempalte_values)
+        page_index = self.request.GET.get('page')               
+        pager = Pager('/admin/advancesettings', page_index, DisplayInfo().admin_pages)
+        pager.bind_model(Category)
+        template_values['page'] = pager
+        
+        self.template_render('admin/categorylist.html', template_values)
 
 class AddCategory(BaseRequestHandler):
     @authorized.role('admin')
@@ -70,15 +73,7 @@ class DeleteCategory(BaseRequestHandler):
 class AdvanceSettings(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
-        page_index = self.request.GET.get('page')
-        if not page_index:
-            page_index = 1
-        else:
-            try:
-                page_index = int(page_index)
-            except:
-                page_index = 1
-                
+        page_index = self.request.GET.get('page')                
         pager = Pager('/admin/advancesettings', page_index, DisplayInfo().admin_pages)
         pager.bind_model(Settings)
         
@@ -105,5 +100,43 @@ class EditSettings(BaseRequestHandler):
             description = self.request.POST.get('description')
             Settings.update_setting(setting_id, name, value, description)
             self.redirect('/admin/advancesettings')
+        except:
+            self.error(500)
+            
+class FriendlinkList(BaseRequestHandler):
+    @authorized.role('admin')
+    def get(self):
+        template_values = {}
+        editlinkid = self.request.GET.get('editlinkid')
+        if editlinkid:
+            template_values['editlink'] = Friendlinks.get_by_id(int(editlinkid))
+            
+        page_index = self.request.GET.get('page')               
+        pager = Pager('/admin/advancesettings', page_index, DisplayInfo().admin_pages)
+        pager.bind_model(Friendlinks)
+        
+        template_values['page'] = pager
+        self.template_render('admin/friendlinklist.html', template_values)
+        
+class AddFriendlink(BaseRequestHandler):
+    @authorized.role('admin')
+    def post(self):
+        title = self.request.POST.get('title')
+        url = self.request.POST.get('url')
+        description = self.request.POST.get('description')
+        edit_linkid = self.request.POST.get('editlinkid')
+        if edit_linkid:
+            Friendlinks.update_link(edit_linkid, title, url, description)
+        else:
+            Friendlinks.create_link(title, url, description)
+        self.redirect('/admin/linklist')
+        
+class DeleteFriendlink(BaseRequestHandler):
+    @authorized.role('admin')
+    def get(self):
+        try:
+            link_id = self.request.GET.get('id')
+            Friendlinks.delete_link(link_id)
+            self.redirect('/admin/linklist')
         except:
             self.error(500)
