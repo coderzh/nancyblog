@@ -16,6 +16,7 @@
 
 __author__ = 'CoderZh'
 
+import cgi
 import urllib
 
 from google.appengine.ext import db
@@ -52,11 +53,18 @@ class Category(BaseModel):
 	@staticmethod
 	def update_category(category_id, name, description, visible):
 		category = Category.get_by_id(int(category_id))
-		category.name = name
+		update_name = False
+		if category.name != name:
+			category.name = name
+			update_name = True
+		
 		category.description = description
 		category.visible = visible
 		category.put()
-		self.update_blogs_count()
+		
+		if update_name:
+			category.update_blogs_count()
+		
 		
 	@property
 	def url(self):
@@ -102,6 +110,42 @@ class Category(BaseModel):
 		query = BlogCategory.all(keys_only=True).filter('category =', self)
 		count = get_records_count(query)
 		memcache.set(key, count)
+		
+	def edit_url(self):
+		return '/admin/categorylist?editcategoryid=%s' % self.key().id()
+	
+	def delete_url(self):
+		return '/admin/deletecategory?id=%s' % self.key().id()
+	
+class Archive(BaseModel):
+	# 200910
+	yearmonth = db.IntegerProperty()
+	count = db.IntegerProperty(default=0)
+	
+	@staticmethod
+	def increase_count(blog_addtime):
+		blog_addmonth = int(blog_addtime.strftime('%Y%m'))
+		record = Archive.all().filter('yearmonth =', blog_addmonth).get()
+		if record:
+			record.count += 1
+		else:
+			record = Archive(yearmonth=blog_addmonth, count=1)			
+		record.put()
+
+	@staticmethod
+	def decrease_count(blog_addtime):
+		blog_addmonth = int(blog_addtime.strftime('%Y%m'))
+		record = Archive.all().filter('yearmonth =', blog_addmonth).get()
+		if record:
+			record.count -= 1
+			record.put()
+			
+	@staticmethod
+	def get_all():
+		return Archive.all().fetch(1000)
+	
+	def url(self):
+		return '/archive/%s' % self.yearmonth
 	
 class Blog(BaseModel):
 	permalink = db.StringProperty()
@@ -116,6 +160,22 @@ class Blog(BaseModel):
 	author = db.UserProperty(auto_current_user_add=True)
 	showtop = db.BooleanProperty(default=False)
 	
+	@staticmethod
+	def get_last_10():
+		key = 'lastposts'
+		lastposts = memcache.get(key)
+		if lastposts is None:
+			query = Blog.all().filter('draft =', False).filter('disabled =', False).order('-publishdate')
+			lastposts = query.fetch(10)
+			memcache.add(key, lastposts)
+			
+		return lastposts
+	
+	@staticmethod
+	def update_last_10_cache():
+		query = Blog.all().filter('draft =', False).filter('disabled =', False).order('-publishdate')
+		lastposts = query.fetch(10)
+		memcache.set('lastposts', lastposts)
 	
 	@staticmethod
 	def get_published_blogs(per_page=20, page=1):
@@ -169,9 +229,11 @@ class Blog(BaseModel):
 			new_blog.permalink = str(new_blog.key())
 			new_blog.put()
 		
+		Archive.increase_count(new_blog.publishdate)
 		Blog.increase_published_blogs_count_cache()
 		Tag.increase_tag_count_cache(tags)
 		Tag.update_all()
+		Blog.update_last_10_cache()
 		return new_blog
 
 	@staticmethod
@@ -207,9 +269,11 @@ class Blog(BaseModel):
 			blogcategories = BlogCategory.all().filter('blog =', blog).fetch(1000)
 		
 		blog.delete()
+		Archive.decrease_count(blog.publishdate)
 		Blog.decrease_published_blogs_count_cache()
 		Tag.decrease_tag_count_cache(blog.tags)
 		Tag.update_all()
+		Blog.update_last_10_cache()
 	
 	def comments(self, per_page=30, page=0):
 		query = BlogComment.all()
@@ -284,6 +348,47 @@ class BlogComment(BaseModel):
 	blog = db.ReferenceProperty(Blog)
 	time = db.DateTimeProperty(auto_now=True)
 
+	@staticmethod
+	def get_last_10():
+		key = 'lastcomments'
+		lastcomments = memcache.get(key)
+		if lastcomments is None:
+			lastcomments = BlogComment.all().order('-time').fetch(10)
+			memcache.add(key, lastcomments)
+		return lastcomments
+
+	@staticmethod
+	def update_last_10_cache():
+		lastcomments = BlogComment.all().order('-time').fetch(10)
+		memcache.set('lastcomments', lastcomments)
+		
+		
+	@staticmethod
+	def create_comment(username, email, url, comment, blog_id):
+		blog = Blog.get_by_id(int(blog_id))
+		if blog:
+			new_comment = BlogComment(username=cgi.escape(username), content=cgi.escape(comment), blog=blog)
+			if email:
+				new_comment.email = cgi.escape(email)
+			if url:
+				new_comment.userlink = cgi.escape(url)
+			
+			new_comment.put()
+			
+			blog.increase_comments_count_cache()
+			BlogComment.update_last_10_cache()
+			
+	@staticmethod
+	def delete_comment(comment_id):
+		comment = BlogComment.get_by_id(int(comment_id))
+		if comment:
+			blog = comment.blog
+			comment.delete()
+			blog.decrease_comments_count_cache()
+			BlogComment.update_last_10_cache()
+			return blog
+		return None
+		
 	@classmethod
 	def get_comments_count(cls):
 		key = 'comments_count'
@@ -323,8 +428,8 @@ class BlogCategory(BaseModel):
 	@staticmethod
 	def delete_blogcategory(blogcategory):
 		blogcategory.category.decrease_blogs_count_cache()
-		blogcategory.delete()
-	
+		blogcategory.delete()	
+
 class Tag:
 	def __init__(self, name, blogs_count):
 		self.name = name

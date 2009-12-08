@@ -82,83 +82,27 @@
                     <div class="catListPostArchive">
 						<h3 class="catListTitle">随笔档案</h3>
 						<ul>
-							<li><a href="#">2008年1月 (12)</a> </li>
-							<li><a href="#">2007年12月 (15)</a> </li>
-							<li><a href="#">2007年9月 (2)</a> </li>
-							<li><a href="#">2007年7月 (2)</a> </li>
-						</ul>
+							{% for archive in archives %}<li><a href="{{archive.url}}">{{archive.yearmonth}}({{archive.count}})</a> </li>{% endfor %}
+                        </ul>
 					</div>
                     <div class="catListLink">
 						<h3 class="catListTitle">友情链接</h3>
 						<ul>
-							<li><a href="#">我的随笔</a></li>
-							<li><a href="#">我的文章</a></li>
-							<li><a href="#">我的评论</a></li>
-							<li><a href="#">我的参与</a></li>
-							<li><a href="#">我的阅读</a></li>
-							<li><a href="#">最新评论</a></li>
+							{% for link in friendlists %} <li><a href="{{link.url}}">{{link.title}}</a></li> {% endfor %}
 						</ul>
 					</div>
 					<div class="catListLink">
 						<h3 class="catListTitle">最新随笔</h3>
 						<ul>
-							<li><a href="#">1. 测试新文章发布111222</a></li>
-							<li><a href="#">2. 测试新文章发布</a></li>
-							<li><a href="#">3. Conscientiously Objecting the Living 
-							Room War</a></li>
-							<li><a href="#">4. 新的带标签</a></li>
-							<li><a href="#">5. 发一篇带标签的文章</a></li>
-							<li><a href="#">6. 发一篇标签的文章看看啊</a></li>
-							<li><a href="#">7. 不会记录的把sdfsdfsdfsdfs212222</a></li>
-							<li><a href="#">8. 来记录一个把</a></li>
-							<li><a href="#">9. 我发正常的，应该不记录</a></li>
-							<li><a href="#">10. test默认测试不记录的</a></li>
+							{% for lastpost in lastposts %}<li><a href="{{lastpost.url}}">{{forloop.counter}}. {{ lastpost.title }}</a></li>{% endfor %}
 						</ul>
 					</div>
 					<div class="catListComment">
 						<h3 class="catListTitle">最新评论<a href="#"><img src="/images/xml.gif" alt="RSS最新的评论" /></a></h3>
-						<div class="divRecentCommentAticle">
-							<a class="listitem" href="#">1. re: 文章标题文章标题文章标题文章标题文章标题文章标题文章标题文章标题文章标题文章标题文章标题文章标题文章标题文章标题文章标题</a>
-						</div>
-						<div class="divRecentComment">
-							我要评论一下我要评论一下我要评论一下我要评论一下我要评论一下我要评论一下我要评论一下我要评论一下我要评论一下我要评论一下我要评论一下我要评论一下我要评论一下我要评论一下我要评论一下我要评论一下我要评论... 
-							(杨正祎) </div>
-						<div class="divRecentCommentAticle">
-							<a class="listitem" href="#">2. re: Conscientiously 
-							Objecting the Living Room War</a> </div>
-						<div class="divRecentComment">
-							这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论这里是评论... 
-							(杨正祎) </div>
-						<div class="divRecentCommentAticle">
-							<a class="listitem" href="#">3. re: Conscientiously 
-							Objecting the Living Room War</a> </div>
-						<div class="divRecentComment">
-							这里是评论 (杨正祎) </div>
-						<div class="divRecentCommentAticle">
-							<a class="listitem" href="#">4. re: 标签文章</a> </div>
-						<div class="divRecentComment">
-							我记得EditPlus是收费软件吧？ 我一直用Crimson Editor 这款软件，也不错，不知道和Editplus哪个好.. 
-							杨兄可以对比对比 (杨正祎) </div>
-						<div class="divRecentCommentAticle">
-							<a class="listitem" href="#">5. re: 标签文章</a> </div>
-						<div class="divRecentComment">
-							我已经下载过模板看过了。 我一直有一个问题，就是图片是怎么上传的，例如这篇博文最后一个图片的网址是：在images文件夹下的，请问怎么跟文章一起上传图片，还是先一张张图片上传了，然后再在博文中添加... 
-							(杨正祎) </div>
-						<div class="divRecentCommentAticle">
-							<a class="listitem" href="#">6. re: 发一篇带标签的文章</a>
-						</div>
-						<div class="divRecentComment">
-							无再次发表了评论 (杨正祎) </div>
-						<div class="divRecentCommentAticle">
-							<a class="listitem" href="#">7. re: 发一篇带标签的文章</a>
-						</div>
-						<div class="divRecentComment">
-							我有发表了评论 (杨正祎) </div>
-						<div class="divRecentCommentAticle">
-							<a class="listitem" href="#">8. re: 发一篇带标签的文章</a>
-						</div>
-						<div class="divRecentComment">
-							我发表了评论 (杨正祎) </div>
+						{% for lastcomment in lastcomments %}<div class="divRecentCommentAticle">
+							<div>{{forloop.counter}}. {{lastcomment.username}} 回复了:<a class="listitem" href="{{lastcomment.blog.url}}">{{lastcomment.blog.title}}</a><br /></div>
+                            <div>{{lastcomment.content}}</div>
+						</div>{% endfor %}
 					</div>
 				</div>
 			</div>

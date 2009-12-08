@@ -171,21 +171,12 @@ class AddComment(BaseRequestHandler):
             recaptcha_challenge_field = self.request.POST.get('recaptcha_challenge_field')
             recaptcha_response_field = self.request.POST.get('recaptcha_response_field')
             valifation_result = submit(recaptcha_challenge_field, recaptcha_response_field,'6LdMwQkAAAAAALf6TyLYGIZyuWdDM0CItskn7Ck3', self.request.remote_addr)
-    
-            blog = Blog.get_by_id(int(blog_id))
-            
-            if (not valifation_result.is_valid) or (not blog):
+              
+            if not valifation_result.is_valid:
                 self.response.out.write('0')
                 return
                     
-            new_comment = BlogComment(username=cgi.escape(name), content=cgi.escape(comment), blog=cgi.escape(blog))
-            if email:
-                new_comment.email = email
-            if url:
-                new_comment.userlink = url
-            new_comment.put()
-            
-            blog.increase_comments_count()
+            BlogComment.create_comment(name, email, url, comment, blog_id)
             
             self.response.out.write('1')
         except:
@@ -195,17 +186,8 @@ class DeleteComment(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
         comment_id = self.request.GET.get('id')
-        try:
-            comment = BlogComment.get_by_id(int(comment_id))
-            if comment:
-                blog = comment.blog
-                comment.delete()
-                blog.decrese_comments_count()
-                self.redirect(blog.url)
-            else:
-                self.redirect('/')
-        except:
-            self.redirect('/')
+        blog = BlogComment.delete_comment(comment_id)
+        self.redirect(blog.url)
             
 class EditComment(BaseRequestHandler):
     @authorized.role('admin')
