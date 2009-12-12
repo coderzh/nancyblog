@@ -36,8 +36,8 @@ def main():
         #('/404.html', blog.NotFoundHandler),
         
         ('/archive/([12]\d\d\d)/(\d|[01]\d)/(\d|[0123]\d)/([-\w]+)/*$', blog.view.ViewBlog),
-        ('/archive/([12]\d\d\d)/*$', blog.view.YearArchive),
-        ('/archive/([12]\d\d\d)/(\d|[01]\d)/*$', blog.view.MonthArchive),
+        #('/archive/([12]\d\d\d)/*$', blog.view.YearArchive),
+        ('/archive/(\d*)/*$', blog.view.MonthArchive),
         ('/blog/addcomment/*$', blog.view.AddComment),
         ('/blog/editcomment/*$', blog.view.EditComment),
         ('/blog/deletecomment/*$', blog.view.DeleteComment),
@@ -64,7 +64,7 @@ def main():
         #('/search/(.*)/*$', blog.SearchHandler),
         ('/tag/(.*)/*$', blog.view.ViewTag),
         ('/category/(.*)/*$', blog.view.ViewCategory),
-        #('/atom/*$', blog.FeedHandler),
+        ('/atom/*$', blog.view.FeedHandler),
         #('/sitemap/*$', blog.SiteMapHandler),
     ], debug = DEBUG)
     

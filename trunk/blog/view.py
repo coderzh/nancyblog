@@ -18,7 +18,7 @@ __author__ = 'CoderZh'
 
 import os
 import time
-
+import datetime
 import cgi
 import common.fckeditor as fckeditor
 import common.authorized as authorized
@@ -56,7 +56,7 @@ class YearArchive(BaseRequestHandler):
         self.template_render('blog/year.html', template_values)
         
 class MonthArchive(BaseRequestHandler):
-    def get(self, year):
+    def get(self, yearmonth):
         template_values = {}
         self.template_render('blog/month.html', template_values)
         
@@ -217,3 +217,16 @@ class ViewCategory(BaseRequestHandler):
         
         template_values = { 'page' : pager }
         self.template_render('viewlist.html', template_values)
+        
+class FeedHandler(BaseRequestHandler):
+    def get(self):
+        blogs = Blog.get_last_10()
+        last_updated = datetime.datetime.now()
+        if blogs and blogs[0]:
+            last_updated = blogs[0].publishdate
+            last_updated = last_updated.strftime("%Y-%m-%dT%H:%M:%SZ")
+        for blog in blogs:
+            blog.formatted_date = blog.publishdate.strftime("%Y-%m-%dT%H:%M:%SZ")
+        self.response.headers['Content-Type'] = 'application/atom+xml'
+        template_values = { 'blogs' : blogs}
+        self.template_render('atom.xml', template_values)
