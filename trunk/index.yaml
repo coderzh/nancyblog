@@ -14,7 +14,15 @@ indexes:
   properties:
   - name: disabled
   - name: draft
-  - name: publishdate
+  - name: entrytype
+  - name: publishtime
+    direction: desc
+
+- kind: Blog
+  properties:
+  - name: disabled
+  - name: draft
+  - name: publishtime
     direction: desc
 
 - kind: Blog
@@ -22,5 +30,32 @@ indexes:
   - name: disabled
   - name: draft
   - name: tags
-  - name: publishdate
+  - name: publishtime
+    direction: desc
+
+- kind: Blog
+  properties:
+  - name: disabled
+  - name: draft
+  - name: yearmonth
+  - name: publishtime
+    direction: desc
+
+- kind: Blog
+  properties:
+  - name: draft
+  - name: entrytype
+  - name: publishtime
+    direction: desc
+
+- kind: Blog
+  properties:
+  - name: draft
+  - name: publishtime
+    direction: desc
+
+- kind: Blog
+  properties:
+  - name: entrytype
+  - name: publishtime
     direction: desc

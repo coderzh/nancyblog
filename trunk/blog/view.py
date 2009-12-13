@@ -40,7 +40,7 @@ class MainPage(BaseRequestHandler):
         #    return
         page_index = self.request.GET.get('page')                
         pager = Pager('/', page_index, DisplayInfo().blog_pages)
-        pager.bind_datahandler(Blog.get_published_blogs_count(), Blog.get_published_blogs)
+        pager.bind_datahandler(Blog.get_published_blogs_count_cache(), Blog.get_published_blogs)
         
         template_values = { 
             'page' : pager,
@@ -68,7 +68,10 @@ class MonthArchive(BaseRequestHandler):
         
 class AddBlog(BaseRequestHandler):
     @authorized.role('admin')
-    def get(self):        
+    def get(self):
+        entrytype = 'post'
+        if 'page' == self.request.GET.get('entrytype'):
+            entrytype = 'page'
         oFCKeditor = fckeditor.FCKeditor('text_input')
         oFCKeditor.Height = 500
         oFCKeditor.BasePath = '/fckeditor/'
@@ -76,7 +79,8 @@ class AddBlog(BaseRequestHandler):
         fckeditor_html = oFCKeditor.Create()
 
         template_values = { 'categories' : Category.get_all_visible_categories(1000),
-                            'fckeditor' : fckeditor_html}
+                            'fckeditor' : fckeditor_html,
+                            'entrytype' : entrytype}
         
         self.template_render('admin/addblog.html', template_values)
     
@@ -86,8 +90,12 @@ class AddBlog(BaseRequestHandler):
         content = self.request.POST.get('text_input')
         permalink = self.request.POST.get('permalink')
         tags = self.request.POST.get('tags').split()
+        draft = False
+        if self.request.POST.get('submitdraft'):
+            draft = True
+        entrytype = self.request.POST.get('entrytype')
         
-        new_blog = Blog.create_blog(permalink, title, content, tags)
+        new_blog = Blog.create_blog(permalink, title, content, tags, draft=draft, entrytype=entrytype)
         
         categories = Category.get_all_visible_categories()
         for category in categories:
@@ -108,9 +116,10 @@ class EditBlog(BaseRequestHandler):
         oFCKeditor.Value = blog.content
         
         fckeditor_html = oFCKeditor.Create()
-        template_values = { 'blog' : blog, 'categories' : Category.get_all_visible_categories(1000),
-                            'fckeditor' : fckeditor_html}
-        self.template_render('admin/editblog.html', template_values)
+        template_values = { 'editblog' : blog, 'categories' : Category.get_all_visible_categories(1000),
+                            'fckeditor' : fckeditor_html,
+                            'entrytype' : blog.entrytype}
+        self.template_render('admin/addblog.html', template_values)
     
     @authorized.role('admin')
     def post(self):
@@ -119,8 +128,12 @@ class EditBlog(BaseRequestHandler):
         content = self.request.POST.get('text_input')
         permalink = self.request.POST.get('permalink')
         tags = self.request.POST.get('tags')
+        entrytype = self.request.POST.get('entrytype')
+        draft = False
+        if self.request.POST.get('submitdraft'):
+            draft = True
         
-        blog = Blog.update_blog(blog_id, permalink, title, content, tags)
+        blog = Blog.update_blog(blog_id, permalink, title, content, tags, draft=draft, entrytype=entrytype)
         
         categories = Category.get_all_visible_categories()
         for category in categories:
@@ -156,9 +169,22 @@ class DeleteBlog(BaseRequestHandler):
 class BlogList(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
+        blog_type = self.request.GET.get('type')
+        items_count = 0
+        datahandler = None
+        if blog_type == 'page':
+            items_count = Blog.get_pagetype_blogs_count()
+            datahandler = Blog.get_pagetype_blogs
+        elif blog_type == 'draft':
+            items_count = Blog.get_draft_blogs_count()
+            datahandler = Blog.get_draft_blogs
+        else:
+            items_count = Blog.get_posttype_blogs_count()
+            datahandler = Blog.get_posttype_blogs
+            
         page_index = self.request.GET.get('page')                
         pager = Pager('/admin/bloglist', page_index, DisplayInfo().admin_pages)
-        pager.bind_model(Blog)
+        pager.bind_datahandler(items_count, datahandler)
         
         template_values = { 'page' : pager }
         self.template_render('admin/bloglist.html', template_values)
