@@ -28,8 +28,5 @@ handlers:
 #  script: install.py
 #  login: admin
 
-- url: /test
-  script: test.py
-
 - url: /.*
   script: main.py
