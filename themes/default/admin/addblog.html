@@ -3,41 +3,36 @@
 <script type="text/javascript" src="/fckeditor/fckeditor.js"></script>
 {% endblock %}
 {% block mainContent %}
-<h1 class="PostListTitle">添加文章</h1>
+<h1 class="PostListTitle">{% if editblog %}编辑{% else %}添加{% endif %}{% ifequal entrytype "page" %}页面{% else %}文章{% endifequal %}</h1>
 <div id="editform">
-    <form method="post" action="/admin/addblog/">
+    <form method="post" action="{% if editblog %}/admin/editblog/{% else %}/admin/addblog/{% endif %}">
     <div id="blogtitle">
-         <input name=title_input id="title_input" type=text size="60" />
-         <label for="title_input"><b>Title</b>(required)</label>
+         <input name=title_input id="title_input" type=text size="60" value="{% if editblog %}{{editblog.title}}{% endif %}" />
+         <label for="title_input"><b>标题</b>(必须)</label>
     </div>
     <div id="blogpost">
-        <h2>Content</h2>
+        <h2>内容：</h2>
         {{ fckeditor }}
     </div>
     <div id="blogcategories">
+      <h2>类别：</h2>
         {% for category in categories %}
-        <input name="category_{{ category.key.id }}" type="checkbox" id="category_{{ category.key.id }}"> {{ category.name }}
+        <input name="category_{{ category.key.id }}" type="checkbox" id="category_{{ category.key.id }}" {% if editblog %}{% for blogcategory in editblog.categories %}{% ifequal category.key.id blogcategory.key.id %}checked="checked"{% endifequal %}{% endfor %}{% endif %}> {{ category.name }}
         {% endfor %}
     </div>
     <div id="blogtags">
-         <input type=text size="60" id="tags" name="tags" value="" />
-         <label for="tags"><b>Tags</b>(comma separated without space) </label>
+         <input type=text size="60" id="tags" name="tags" value="{% if editblog %}{{editblog.tags_string}}{% endif %}" />
+         <label for="tags"><b>标签</b>(空格分隔) </label>
     </div>
     <div id="blogpermalink">
-         <input type=text size="60" id="permalink" name="permalink" value="">
-         <label for="permalink"><b>Permalink</b> </label>
+         <input type=text size="60" id="permalink" name="permalink" value="{% if editblog %}{{editblog.permalink}}{% endif %}">
+         <label for="permalink"><b>固定链接</b> </label>
     </div>
-    <div><input name="submit" type="submit" value="add"></div>
+    <div>{% if editblog %}<input name="id" type="hidden" value="{{ editblog.key.id }}" />{% endif %}<input name="entrytype" type="hidden" value="{{entrytype}}"><input name="submit" type="submit" value="{% if editblog %}{% if editblog.draft %}发布{% else %}编辑{% endif %}{% else %}添加{% endif %}{% ifequal entrytype "post" %}文章{% else %}页面{% endifequal %}">&nbsp;&nbsp;<input name="submitdraft" type="submit" value="保存草稿"></div>
     </form>
 </div>
 {% endblock %}
 
 {% block sideBar %}
-<div class="catListEssay">
-    <h3 class="catListTitle">操作</h3>
-    <ul>
-        <li><a href="/admin/addblog">» 添加文章</a></li>
-        <li><a href="#">» 草稿箱</a></li>
-    </ul>
-</div>
+{% include "bloglist_sidebar.html" %}
 {% endblock%}

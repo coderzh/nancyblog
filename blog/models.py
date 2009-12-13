@@ -175,7 +175,7 @@ class Blog(BaseModel):
 		key = 'lastposts'
 		lastposts = memcache.get(key)
 		if lastposts is None:
-			query = Blog.all().filter('draft =', False).filter('disabled =', False).order('-publishtime')
+			query = Blog.all().filter('entrytype =', 'post').filter('draft =', False).filter('disabled =', False).order('-publishtime')
 			lastposts = query.fetch(10)
 			memcache.add(key, lastposts)
 			
@@ -183,14 +183,13 @@ class Blog(BaseModel):
 	
 	@staticmethod
 	def update_last_10_cache():
-		query = Blog.all().filter('draft =', False).filter('disabled =', False).order('-publishtime')
+		query = Blog.all().filter('entrytype =', 'post').filter('draft =', False).filter('disabled =', False).order('-publishtime')
 		lastposts = query.fetch(10)
 		memcache.set('lastposts', lastposts)
 	
 	@staticmethod
 	def get_published_blogs(per_page=20, page=1):
-		query = Blog.all().filter('draft =', False).filter('disabled =', False).order('-publishtime')
-		return query.fetch(per_page, offset=((page-1)*per_page))
+		return Blog.get_posttype_blogs(per_page, page)
 	
 	@staticmethod
 	def get_blogs_by_tag(per_page=20, page=1, tag=''):
@@ -212,18 +211,44 @@ class Blog(BaseModel):
 	def get_blogs_by_yearmonth(per_page=20, page=1, yearmonth='200912'):
 		query = Blog.all().filter('draft =', False).filter('disabled =', False).filter('yearmonth =', yearmonth).order('-publishtime')
 		return query.fetch(per_page, offset=(page-1)*per_page)
+
+	@staticmethod
+	def get_posttype_blogs_count():
+		query = Blog.all(keys_only=True).filter('entrytype =', 'post').filter('draft =', False)
+		count = get_records_count(query)
+		return count
+	@staticmethod
+	def get_posttype_blogs(per_page=20, page=1):
+		query = Blog.all().filter('entrytype =', 'post').filter('draft =', False).filter('disabled =', False).order('-publishtime')
+		return query.fetch(per_page, offset=(page-1)*per_page)
 	
 	@staticmethod
-	def get_published_blogs_count():
+	def get_pagetype_blogs_count():
+		query = Blog.all(keys_only=True).filter('entrytype =', 'page').filter('draft =', False)
+		count = get_records_count(query)
+		return count
+	@staticmethod
+	def get_pagetype_blogs(per_page=20, page=1):
+		query = Blog.all().filter('entrytype =', 'page').order('-publishtime').filter('draft =', False)
+		return query.fetch(per_page, offset=(page-1)*per_page)
+	
+	@staticmethod
+	def get_draft_blogs_count():
+		query = Blog.all(keys_only=True).filter('draft =', True)
+		count = get_records_count(query)
+		return count
+	@staticmethod
+	def get_draft_blogs(per_page=20, page=1):
+		query = Blog.all().filter('draft =', True).order('-publishtime')
+		return query.fetch(per_page, offset=(page-1)*per_page)
+	
+	@staticmethod
+	def get_published_blogs_count_cache():
 		key = 'blogcount'
 		count = memcache.get(key)
 		if count is not None:
 			return count
-
-		query = Blog.all(keys_only=True)
-		query.filter('draft =', False)
-		query.filter('disabled =', False)
-		count = get_records_count(query)
+		count = Blog.get_posttype_blogs_count()
 		memcache.add(key, count)
 		return count
 	
@@ -236,27 +261,40 @@ class Blog(BaseModel):
 		memcache.decr('blogcount', delta)
 		
 	@staticmethod
-	def create_blog(permalink, title, content, tags, draft=False, disabled=False, showtop=False):
+	def create_blog(permalink, title, content, tags, draft=False, disabled=False, showtop=False, entrytype='post'):
 		yearmonth = db.datetime.datetime.now().strftime('%Y%m')
-		new_blog = Blog(permalink=permalink, title=title, content=content, tags=tags, draft=draft, showtop = showtop, yearmonth=yearmonth)
+		new_blog = Blog(permalink=permalink, title=title, content=content, tags=tags, draft=draft, showtop = showtop, yearmonth=yearmonth, entrytype=entrytype)
 		new_blog.put()
 		if not new_blog.permalink:
 			new_blog.permalink = str(new_blog.key())
 			new_blog.put()
 		
-		Archive.increase_count(new_blog.yearmonth)
-		Blog.increase_published_blogs_count_cache()
-		Tag.increase_tag_count_cache(tags)
-		Tag.update_all()
-		Blog.update_last_10_cache()
+		if new_blog.entrytype == 'post':
+			Archive.increase_count(new_blog.yearmonth)
+			Blog.increase_published_blogs_count_cache()
+			Tag.increase_tag_count_cache(tags)
+			Tag.update_all()
+			Blog.update_last_10_cache()
+			
 		return new_blog
 
 	@staticmethod
-	def update_blog(blog_id, permalink, title, content, tags, draft=False, disabled=False, showtop=False):
+	def update_blog(blog_id, permalink, title, content, tags, draft=False, disabled=False, showtop=False, entrytype='post'):
 		blog = Blog.get_by_id(int(blog_id))
 		if blog:
 			blog.title = title
 			blog.content = content
+			
+			if blog.draft != draft and entrytype=='post':
+				Blog.update_last_10_cache()
+				if blog.draft:
+					Blog.increase_published_blogs_count_cache()
+				else:
+					Blog.decrease_published_blogs_count_cache()
+
+			blog.entrytype = entrytype
+			blog.draft = draft
+			blog.disabled = disabled
 			if permalink:
 				blog.permalink = permalink
 			old_tags = set(blog.tags)
@@ -277,7 +315,7 @@ class Blog(BaseModel):
 			Tag.update_all()
 			
 		else:
-			blog = Blog.create_blog(permalink, title, content, tags)
+			blog = Blog.create_blog(permalink, title, content, tags, draft, disabled, showtop, entrytype)
 		return blog
 		
 	@staticmethod
@@ -288,12 +326,15 @@ class Blog(BaseModel):
 			db.delete(blogcategories)
 			blogcategories = BlogCategory.all().filter('blog =', blog).fetch(1000)
 		
+		BlogComment.delete_blog_comments(blog)
 		blog.delete()
-		Archive.decrease_count(blog.yearmonth)
-		Blog.decrease_published_blogs_count_cache()
+		BlogComment.update_last_10_cache()
+		if blog.entrytype == 'post':
+			Archive.decrease_count(blog.yearmonth)
+			Blog.decrease_published_blogs_count_cache()
+			Blog.update_last_10_cache()
 		Tag.decrease_tag_count_cache(blog.tags)
 		Tag.update_all()
-		Blog.update_last_10_cache()
 	
 	def comments(self, per_page=30, page=0):
 		query = BlogComment.all()
@@ -331,7 +372,7 @@ class Blog(BaseModel):
 	@staticmethod
 	def get_all_tags():
 		tags = set()
-		blogcount = Blog.get_published_blogs_count()
+		blogcount = Blog.get_published_blogs_count_cache()
 		page = 1
 		blogs = Blog.get_published_blogs(1000, page)
 		
@@ -394,8 +435,16 @@ class BlogComment(BaseModel):
 			return blog
 		return None
 		
+	@staticmethod
+	def delete_blog_comments(blog):
+		query = BlogComment.all().filter('blog =', blog)
+		results = query.fetch(100)
+		while result:
+			db.delete(results)
+			results = query.fetch(100)
+
 	@classmethod
-	def get_comments_count(cls):
+	def get_comments_count_cache(cls):
 		key = 'comments_count'
 		count = memcache.get(key)
 		if count is None:
@@ -487,8 +536,8 @@ class Tag:
 class Stat:
 	@property
 	def blogs_count(self):
-		return Blog.get_published_blogs_count()
+		return Blog.get_published_blogs_count_cache()
 	
 	@property
 	def comments_count(self):
-		return BlogComment.get_comments_count()
+		return BlogComment.get_comments_count_cache()

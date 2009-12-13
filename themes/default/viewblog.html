@@ -16,16 +16,13 @@ var RecaptchaOptions = { theme: 'custom',lang: 'en' };
 <div id="topics">
     <div class="post">
         <h1 class="postTitle"><a class="postTitle2" href="{{ blog.url }}">{{ blog.title }}</a> </h1>
-        <div class="clear"><input type="hidden" value="{{blog.key.id}}" id="blogid" />
-        </div>
         <div class="postBody">
             {{ blog.content }}
             <div id="EntryTag">Tag标签: {% for tag in blog.tags %}<a href="/tag/{{tag}}">{{ tag }}</a>{% endfor %}</div>
         </div>
         <div class="postDesc">
-                post@ {{ blog.publishdate|date:"Y-m-j H:i" }}&nbsp;{{ blog.author.nickname }}&nbsp;<a href="#">评论({{ blog.commentcount }})</a>&nbsp; <a href="{{ blog.edit_url }}">编辑</a>&nbsp;
-            <a href="#">收藏</a> 所属分类: {% for category in blog.categories %}{% if category.visible %}<a href="/category/{{ category.name }}">{{ category.name }}</a>{% endif %}{% endfor %}
-            <a class="aPostDescFav" href="#">网摘收藏</a></div>
+                post@ {{ blog.publishtime|date:"Y-m-j H:i" }}&nbsp;{{ blog.author.nickname }}&nbsp;<a href="#">评论({{ blog.commentcount }})</a>{% if is_admin %}&nbsp; <a href="{{ blog.edit_url }}">编辑</a>{% endif %}&nbsp;
+            <a href="#">收藏</a> 所属分类: {% for category in blog.categories %}{% if category.visible %}<a href="/category/{{ category.name }}">{{ category.name }}</a>{% endif %}{% endfor %}<input type="hidden" value="{{blog.key.id}}" id="blogid" /></div>
     </div>
 </div>
 <!--end: topics 文章、评论容器-->
