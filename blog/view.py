@@ -57,8 +57,14 @@ class YearArchive(BaseRequestHandler):
         
 class MonthArchive(BaseRequestHandler):
     def get(self, yearmonth):
-        template_values = {}
-        self.template_render('blog/month.html', template_values)
+        page_index = self.request.GET.get('page')                
+        pager = Pager('/archive/%s' % yearmonth, page_index, DisplayInfo().blog_pages)
+        pager.bind_datahandler(Archive.get_yearmonth_count(yearmonth),
+                               Blog.get_blogs_by_yearmonth,
+                               yearmonth)
+        
+        template_values = { 'page' : pager }
+        self.template_render('viewlist.html', template_values)
         
 class AddBlog(BaseRequestHandler):
     @authorized.role('admin')

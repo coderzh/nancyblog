@@ -119,23 +119,21 @@ class Category(BaseModel):
 	
 class Archive(BaseModel):
 	# 200910
-	yearmonth = db.IntegerProperty()
+	yearmonth = db.StringProperty()
 	count = db.IntegerProperty(default=0)
 	
 	@staticmethod
-	def increase_count(blog_addtime):
-		blog_addmonth = int(blog_addtime.strftime('%Y%m'))
-		record = Archive.all().filter('yearmonth =', blog_addmonth).get()
+	def increase_count(yearmonth):
+		record = Archive.all().filter('yearmonth =', yearmonth).get()
 		if record:
 			record.count += 1
 		else:
-			record = Archive(yearmonth=blog_addmonth, count=1)			
+			record = Archive(yearmonth=yearmonth, count=1)			
 		record.put()
 
 	@staticmethod
-	def decrease_count(blog_addtime):
-		blog_addmonth = int(blog_addtime.strftime('%Y%m'))
-		record = Archive.all().filter('yearmonth =', blog_addmonth).get()
+	def decrease_count(yearmonth):
+		record = Archive.all().filter('yearmonth =', yearmonth).get()
 		if record:
 			record.count -= 1
 			record.put()
@@ -143,7 +141,15 @@ class Archive(BaseModel):
 	@staticmethod
 	def get_all():
 		return Archive.all().fetch(1000)
+
+	@staticmethod
+	def get_yearmonth_count(yearmonth):
+		record = Archive.all().filter('yearmonth =', yearmonth).get()
+		if record:
+			return record.count
+		return 0
 	
+	@property
 	def url(self):
 		return '/archive/%s' % self.yearmonth
 	
@@ -151,21 +157,25 @@ class Blog(BaseModel):
 	permalink = db.StringProperty()
 	title = db.StringProperty()
 	content = db.TextProperty()
-	publishdate = db.DateTimeProperty(auto_now_add=True)
+	publishtime = db.DateTimeProperty(auto_now_add=True)
+	yearmonth = db.StringProperty()
 	lastmodifytime = db.DateTimeProperty(auto_now=True)
 	tags = db.StringListProperty()
 	draft = db.BooleanProperty(default=False)
 	disabled = db.BooleanProperty(default=False)
 	viewcount = db.IntegerProperty(default=0)
+	commentcount = db.IntegerProperty(default=0)
 	author = db.UserProperty(auto_current_user_add=True)
 	showtop = db.BooleanProperty(default=False)
+	entrytype = db.StringProperty(default='post', choices=['post', 'page'])
+	pic = db.BlobProperty()
 	
 	@staticmethod
 	def get_last_10():
 		key = 'lastposts'
 		lastposts = memcache.get(key)
 		if lastposts is None:
-			query = Blog.all().filter('draft =', False).filter('disabled =', False).order('-publishdate')
+			query = Blog.all().filter('draft =', False).filter('disabled =', False).order('-publishtime')
 			lastposts = query.fetch(10)
 			memcache.add(key, lastposts)
 			
@@ -173,19 +183,19 @@ class Blog(BaseModel):
 	
 	@staticmethod
 	def update_last_10_cache():
-		query = Blog.all().filter('draft =', False).filter('disabled =', False).order('-publishdate')
+		query = Blog.all().filter('draft =', False).filter('disabled =', False).order('-publishtime')
 		lastposts = query.fetch(10)
 		memcache.set('lastposts', lastposts)
 	
 	@staticmethod
 	def get_published_blogs(per_page=20, page=1):
-		query = Blog.all().filter('draft =', False).filter('disabled =', False).order('-publishdate')
+		query = Blog.all().filter('draft =', False).filter('disabled =', False).order('-publishtime')
 		return query.fetch(per_page, offset=((page-1)*per_page))
 	
 	@staticmethod
 	def get_blogs_by_tag(per_page=20, page=1, tag=''):
-		query = Blog.all().filter('draft =', False).filter('disabled =', False).filter('tags =',tag).order('-publishdate')
-		return query.fetch(per_page, offset=((page-1)*per_page))
+		query = Blog.all().filter('draft =', False).filter('disabled =', False).filter('tags =',tag).order('-publishtime')
+		return query.fetch(per_page, offset=(page-1)*per_page)
 	
 	@staticmethod
 	def get_blogs_by_category(per_page=20, page=1, category_name=''):
@@ -197,7 +207,11 @@ class Blog(BaseModel):
 			for blogcategory in blogcategories:
 				blogs.append(blogcategory.blog)
 		return blogs
-		
+
+	@staticmethod
+	def get_blogs_by_yearmonth(per_page=20, page=1, yearmonth='200912'):
+		query = Blog.all().filter('draft =', False).filter('disabled =', False).filter('yearmonth =', yearmonth).order('-publishtime')
+		return query.fetch(per_page, offset=(page-1)*per_page)
 	
 	@staticmethod
 	def get_published_blogs_count():
@@ -223,13 +237,14 @@ class Blog(BaseModel):
 		
 	@staticmethod
 	def create_blog(permalink, title, content, tags, draft=False, disabled=False, showtop=False):
-		new_blog = Blog(permalink=permalink, title=title, content=content, tags=tags, draft=draft, showtop = showtop)
+		yearmonth = db.datetime.datetime.now().strftime('%Y%m')
+		new_blog = Blog(permalink=permalink, title=title, content=content, tags=tags, draft=draft, showtop = showtop, yearmonth=yearmonth)
 		new_blog.put()
 		if not new_blog.permalink:
 			new_blog.permalink = str(new_blog.key())
 			new_blog.put()
 		
-		Archive.increase_count(new_blog.publishdate)
+		Archive.increase_count(new_blog.yearmonth)
 		Blog.increase_published_blogs_count_cache()
 		Tag.increase_tag_count_cache(tags)
 		Tag.update_all()
@@ -247,6 +262,11 @@ class Blog(BaseModel):
 			old_tags = set(blog.tags)
 			blog.tags = tags.split()
 			new_tags = set(blog.tags)
+			if not blog.commentcount:
+				blog.commentcount = 0
+			if not blog.yearmonth:
+				blog.yearmonth = blog.publishtime.strftime('%Y%m')
+				
 			blog.put()
 			
 			# update tag stat
@@ -269,7 +289,7 @@ class Blog(BaseModel):
 			blogcategories = BlogCategory.all().filter('blog =', blog).fetch(1000)
 		
 		blog.delete()
-		Archive.decrease_count(blog.publishdate)
+		Archive.decrease_count(blog.yearmonth)
 		Blog.decrease_published_blogs_count_cache()
 		Tag.decrease_tag_count_cache(blog.tags)
 		Tag.update_all()
@@ -282,26 +302,9 @@ class Blog(BaseModel):
 	
 	@property
 	def url(self):
-		return '/archive/%s/%s' % (self.publishdate.strftime('%Y/%m/%d'), 
+		return '/archive/%s/%s' % (self.publishtime.strftime('%Y/%m/%d'), 
 								   urllib.unquote(self.permalink.encode('utf-8')))
-	
-	@property
-	def comments_count(self):
-		key = '%s_comments_count' % self.permalink
-		count = memcache.get(key)
-		if count is None:
-			count = BlogComment.all(keys_only=True).filter('blog =', self).count()
-			memcache.add(key, count)
-		return count
-	
-	def decrease_comments_count_cache(self, delta=1):
-		key = '%s_comments_count' % self.permalink
-		memcache.decr(key, delta)
-	
-	def increase_comments_count_cache(self, delta=1):
-		key = '%s_comments_count' % self.permalink
-		memcache.incr(key, delta)
-		
+			
 	@property
 	def edit_url(self):
 		return '/admin/editblog?id=%s' % self.key().id()
@@ -375,7 +378,8 @@ class BlogComment(BaseModel):
 			
 			new_comment.put()
 			
-			blog.increase_comments_count_cache()
+			blog.commentcount += 1
+			blog.put()
 			BlogComment.update_last_10_cache()
 			
 	@staticmethod
@@ -384,7 +388,8 @@ class BlogComment(BaseModel):
 		if comment:
 			blog = comment.blog
 			comment.delete()
-			blog.decrease_comments_count_cache()
+			blog.commentcount += 1
+			blog.put()
 			BlogComment.update_last_10_cache()
 			return blog
 		return None

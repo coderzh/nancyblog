@@ -54,7 +54,6 @@ body {
 }
 
 input {
-	height:20px;
 	padding:2px 2px 2px 2px;
 }
 input, textarea {
@@ -581,7 +580,7 @@ padding-right:16px;
 }
 .mySearch #q {
 	height: 1.4em;
-	width: 175px;
+	width: 168px;
 }
 /****列表页面结束******************************/
 
