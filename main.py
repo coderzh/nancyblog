@@ -29,9 +29,7 @@ template.register_template_library('common.filter')
 def main():
     application = webapp.WSGIApplication([
         ('/*$', blog.view.MainPage),
-        #('/images/(.*)', blog.view.ImagesHandler),
-        #('/stylesheets/(.*)', blog.view.StyleSheetsHandler),
-        #('/page/(\d*)/*$', blog.PageHandle),
+        ('/page/(.*)/*$', blog.view.PageHandle),
         #('/403.html', blog.UnauthorizedHandler),
         #('/404.html', blog.NotFoundHandler),
         
@@ -66,6 +64,8 @@ def main():
         ('/category/(.*)/*$', blog.view.ViewCategory),
         ('/atom/*$', blog.view.FeedHandler),
         #('/sitemap/*$', blog.SiteMapHandler),
+        ('/500.html', blog.view.ErrorHandler),
+        ('/(.*)', blog.view.NotFoundHandler),
     ], debug = DEBUG)
     
     wsgiref.handlers.CGIHandler().run(application)

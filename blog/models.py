@@ -209,7 +209,7 @@ class Blog(BaseModel):
 
 	@staticmethod
 	def get_blogs_by_yearmonth(per_page=20, page=1, yearmonth='200912'):
-		query = Blog.all().filter('draft =', False).filter('disabled =', False).filter('yearmonth =', yearmonth).order('-publishtime')
+		query = Blog.all().filter('entrytype =', 'post').filter('draft =', False).filter('disabled =', False).filter('yearmonth =', yearmonth).order('-publishtime')
 		return query.fetch(per_page, offset=(page-1)*per_page)
 
 	@staticmethod
@@ -343,8 +343,11 @@ class Blog(BaseModel):
 	
 	@property
 	def url(self):
-		return '/archive/%s/%s' % (self.publishtime.strftime('%Y/%m/%d'), 
-								   urllib.unquote(self.permalink.encode('utf-8')))
+		if self.entrytype == 'post':
+			return '/archive/%s/%s' % (self.publishtime.strftime('%Y/%m/%d'), 
+									   urllib.unquote(self.permalink.encode('utf-8')))
+		else:
+			return '/page/%s' % urllib.unquote(self.permalink.encode('utf-8'))
 			
 	@property
 	def edit_url(self):
@@ -422,6 +425,7 @@ class BlogComment(BaseModel):
 			blog.commentcount += 1
 			blog.put()
 			BlogComment.update_last_10_cache()
+			BlogComment.increase_comments_count()
 			
 	@staticmethod
 	def delete_comment(comment_id):
@@ -432,6 +436,7 @@ class BlogComment(BaseModel):
 			blog.commentcount += 1
 			blog.put()
 			BlogComment.update_last_10_cache()
+			BlogComment.decrease_comments_count()
 			return blog
 		return None
 		

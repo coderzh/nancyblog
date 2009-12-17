@@ -4,7 +4,7 @@
 <head id="Head">
 <title>{{ bloginfo.blogtitle }}</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta id="metaKeywords" name="keywords" content="博客,博客园,博客皮肤,博客园皮肤" />
+<meta id="metaKeywords" name="keywords" content="CoderZh,NancyBlog,博客"/>
 <link id="MainCss" type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
 <!-- Include required JS files -->
 <script type="text/javascript" src="/syntaxhighlighter/src/shCore.js"></script>
@@ -29,7 +29,7 @@
 	<div id="header">
 		<div id="blogTitle">
 			<a id="lnkBlogLogo" href="#">
-			<img id="blogLogo" src="/images/logo.gif" alt="博客logo" /></a>
+			<img id="blogLogo" src="/images/logo.jpg" alt="博客logo" /></a>
 			<h1><a class="headermaintitle" href="{{ bloginfo.homepage }}">{{ bloginfo.blogtitle }}</a></h1>
 			<h2>{{ bloginfo.subtitle }}</h2>
 		</div>
@@ -37,8 +37,8 @@
 		<div id="navigator">
 			<ul id="navList">
 				<li><a class="menu" href="/">首页</a></li>
-				<li><a class="menu" href="/myprojects">我的作品</a></li>
-				<li><a href="/aboutme" class="menu">关于我</a></li>
+				<li><a class="menu" href="/page/myprojects">我的作品</a></li>
+				<li><a class="menu" href="/page/aboutme">关于我</a></li>
                 {% if is_admin %}<li><a class="menu" href="/admin">管理</a></li>{% endif %}
 			</ul>
 			<div class="blogStats">

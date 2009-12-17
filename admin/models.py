@@ -16,6 +16,7 @@
 
 __author__ = 'CoderZh'
 
+import urllib
 from common.models import BaseModel
 
 from google.appengine.ext import db
@@ -78,7 +79,6 @@ class Settings(BaseModel):
                 memcache.set(key, setting_item)
             else:
                 memcache.add(key, setting_item)
-                
            
     @property
     def edit_url(self):
@@ -87,6 +87,10 @@ class Settings(BaseModel):
     @property
     def delete_url(self):
         return '/admin/deletesettings?id=%s' % self.key().id()
+
+#class Menus(BaseModel):
+ #   text = db.StringProperty()
+  #  url = db.StringProperty()
     
 class Friendlinks(BaseModel):
     title = db.StringProperty()
