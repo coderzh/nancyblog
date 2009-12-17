@@ -20,7 +20,7 @@ __author__ = 'CoderZh'
 import re
 import cgi
 import urllib
-
+from datetime import timedelta
 from google.appengine.ext import webapp
 
 
@@ -49,3 +49,6 @@ def quote ( str ):
 def escape ( str ):
     return cgi.escape(str)
 
+@register.filter
+def timezone(value, offset):
+    return value + timedelta(hours=offset)

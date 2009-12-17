@@ -13,7 +13,7 @@
     </thead>
     {% for blog in page.items %}
     <tr>
-        <td><a href="{{ blog.url }}">{{ blog.title }}({{ blog.lastmodifytime|date:"Y-m-j H:i"}})</a></td>
+        <td><a href="{{ blog.url }}">{{ blog.title }}({{ blog.lastmodifytime|timezone:8|date:"Y-m-j H:i"}})</a></td>
         <td>{{ blog.viewcount }}</td>
         <td>{{ blog.commentcount }}</td>
         <td><a href="{{ blog.edit_url }}">编辑</a></td>
