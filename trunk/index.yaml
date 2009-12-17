@@ -22,6 +22,15 @@ indexes:
   properties:
   - name: disabled
   - name: draft
+  - name: entrytype
+  - name: yearmonth
+  - name: publishtime
+    direction: desc
+
+- kind: Blog
+  properties:
+  - name: disabled
+  - name: draft
   - name: publishtime
     direction: desc
 

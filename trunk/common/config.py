@@ -28,11 +28,7 @@ class BaseInfo(object):
         object.__setattr__(self, name, value)
         Settings.update_value(name, value)
 
-class BlogInfo(BaseInfo):
-    @property
-    def root_url(self):
-        return Settings.get_vaule('root_url', 'http://www.coderzh.com', u'主页地址')
-    
+class BlogInfo(BaseInfo):    
     @property
     def author(self):
         return Settings.get_value('author', 'CoderZh', u'博客作者名称')
@@ -43,7 +39,7 @@ class BlogInfo(BaseInfo):
     
     @property
     def homepage(self):
-        return Settings.get_value('homepage', 'http://coderzh.cnblogs.com', u'作者主页')
+        return Settings.get_value('homepage', 'http://blog.coderzh.com', u'作者主页')
     
     @property
     def blogtitle(self):

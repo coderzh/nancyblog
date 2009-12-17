@@ -1,17 +1,16 @@
 {% extends "base.html" %}
 {% block mainContent %}
-{% for blog in page.items %}
 <div id="topics">
+{% for blog in page.items %}
 <div class="post">
 <h1 class="postTitle"><a class="postTitle2" href="{{ blog.url|urlencode }}">{{ blog.title }}</a></h1>
-<div class="postCon">{{ blog.content }}</div>
+<div class="postBody">{{ blog.content }}</div>
 <div class="clear"></div>
 <div class="postDesc">
     posted @ {{ blog.publishtime|date:"Y-m-j H:i" }} {{ blog.author.nickname }}</a> | <a href="{{blog.url|urlencode}}#commentForm" title="comments">评论 ({{ blog.commentcount }})</a></div>
 <div class="clear"></div>
-<div class="postSeparator"></div>
-</div>
 </div>
 {% endfor %}
+</div>
 <div class="topicListFooter">{% include "pager.html" %}</div>
 {% endblock %}

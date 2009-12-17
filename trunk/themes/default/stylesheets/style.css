@@ -1,16 +1,4 @@
 /**************************************************
-说明：
-1：我们建议你通过只改变css的方式来制作新的皮肤模板。当然，页面的部分代
-码你也是可以更改的，例如一些图片的地址。但是，请你在递交作品的时候，请同时
-提交对页面部分代码的修改备注和说明。以便我们了解。
-2：为了保证页面的兼容性，请你分别在IE和Firefox中分别查看你的页面，以便保证页面
-对浏览器的兼容性。
-3：请你随时关注官方网站。以便获得最新的通知和说明
-时间：2008-1-30
-作者：杨正祎
-**************************************************/
-
-/**************************************************
 第一部分：所有的模板都使用的公共样式。公告样式是为了更好的向前和向后兼容。
 如果不符合你皮肤的要求，你可以在后面通过更高的优先级覆盖着这些样式，但是
 你不能删除这些样式。
@@ -51,6 +39,10 @@ body {
 	font-family: "verdana","ms song","宋体","Arial","微软雅黑", "Helvetica", "sans-serif";
 	font-size: 12px;
 	min-height: 101%;
+}
+
+p {
+    margin : 5px auto;
 }
 
 input {
@@ -95,7 +87,7 @@ table {
 fieldset, img {
 	border: 0;
 }
-ul {
+ul,ol{
 	word-break: break-all;
 }
 li {
@@ -152,7 +144,7 @@ a:active {
 	font-weight: bold;
 	line-height: 1.5em;
 	margin-left: 1em;
-	margin-top: 10px;
+	margin-top: 0px;
 	width: 50%;
 	float: left;
 }
@@ -166,7 +158,9 @@ a:active {
 	margin-top:8px;
 }
 #blogLogo {
-	float: right;
+	float: left;
+	width: 60px;
+	height:60px;
 }
 #navigator {
 	background-color: #C5D7EF;
@@ -214,7 +208,7 @@ a:active {
 	text-align: left;
 }
 #mainContent .forFlow{
-	margin-left: 18em;
+	margin-left: 21em;
 	float: none;
 	width: auto;
 }
@@ -364,19 +358,20 @@ a:active {
 	word-break: break-all;
 }
 #topics .postTitle {
-	font-size: 130%;
+	font-size: 125%;
 	font-weight: bold;
 	border-bottom: 1px solid #999;
 	float: left;
 	line-height: 1.5em;
 	width: 100%;
-	padding-left: 5px;
 }
 .postBody {
-	padding: 5px 2px 5px 5px;
+	padding: 10px 0;
 	line-height: 1.5em;
 	color: #000;
 	border-bottom: 1px solid #C5D7EF;
+	float: right;
+	width: 100%;
 }
 #EntryTag {
 	color: #666;
@@ -400,10 +395,9 @@ a:active {
 }
 .feedback_area_title {
 	font-weight: bold;
-	margin-top: 20px;
+	margin-top: 10px;
 	border-bottom: 1px solid #333;
 	margin-bottom: 10px;
-	padding-left: 8px;
 }
 .louzhu {
 background:transparent url('/images/icoLouZhu.gif') no-repeat scroll right top;
@@ -639,8 +633,7 @@ padding-right:16px;
 	line-height: 1.5em;
 }
 .postBody p,.postCon  p{
-	text-indent: 2em;
-	margin: 0 auto 1em auto;
+	margin: 0 auto 5px auto;
 }
 .postBody h2{
 	font-size: 150%;
@@ -676,9 +669,18 @@ padding-right:16px;
 	margin-left:2em;	
 }
 
-.postBody li,.postCon li{
+.postBody ol,.postCon ol{
+	margin-left:2em;
+}
+
+.postBody ul li,.postCon ul li{
 	list-style-type:disc;
-	margin-bottom:1em;
+	margin-bottom:3px;
+}
+
+.postBody ol li,.postCon ol li{
+	list-style-type:decimal;
+	margin-bottom:3px;
 }
 
 .postBody blockquote{
@@ -698,7 +700,7 @@ Name: cmxform Styles
 
 ***********************************/
 form.cmxform {
-	width: 500px;
+	width: 540px;
 	font-size: 12px;
 	color: #333;
 }
@@ -794,6 +796,16 @@ form.cmxform input.submit {
 /*\*//*/ form.cmxform legend { display: inline-block; } /* IE Mac legend fix */
 
 #settingForm {
-	width:400px;
+	width:500px;
 	margin-top:10px;
+}
+
+#errorinfo {
+	margin-left: 50px;
+	font-size: 120%;
+}
+
+#errorinfo h1 {
+	color: red;
+	font-size: 130%;
 }

@@ -7,10 +7,13 @@ $(document).ready(function (){
 	floatform.hide();
 });
 
-function EditSettings(id, name, value, description) {
+function EditSettings(id) {
 	$(".cmxform").show();
+	var name = $("td#cname_"+id).text();
+	var value = $("td#cvalue_"+id).text();
+	var description = $("td#cdescription_"+id).text();
 	$("input#cname").val(name);
-	$("input#cvalue").val(value);
+	$("textarea#cvalue").val(value);
 	$("textarea#cdescription").val(description);
 	$("input#csetting_id").val(id);
 };
@@ -33,10 +36,10 @@ function EditSettings(id, name, value, description) {
     </thead>
     {% for setting in page.items %}
     <tr>
-        <td>{{setting.name}}</td>
-        <td>{{setting.value}}</td>
-        <td>{{setting.description}}</td>
-        <td><a href="#settingForm" onclick="EditSettings('{{setting.key.id}}','{{setting.name}}','{{setting.value}}','{{setting.description}}')">编辑</a></td>
+        <td id='cname_{{setting.key.id}}'>{{setting.name}}</td>
+        <td id='cvalue_{{setting.key.id}}'>{{setting.value|escape}}</td>
+        <td id='cdescription_{{setting.key.id}}'>{{setting.description|escape}}</td>
+        <td><a href="#settingForm" onclick="EditSettings('{{setting.key.id}}')">编辑</a></td>
         <td><a href="{{setting.delete_url}}" onclick="return window.confirm('确定删除这个设置吗?');">删除</a></td>
     </tr>
     {% endfor %}
@@ -55,7 +58,7 @@ function EditSettings(id, name, value, description) {
 		</p>
 		<p>
 			<label for="cvalue">值</label>
-			<input id="cvalue" name="value" value="" size="30" />
+			<textarea id="cvalue" name="value" rows="6" cols="30" size="30"></textarea>
 		</p>
 		<p>
 			<label for="cdescription">说明</label>

@@ -35,15 +35,15 @@ class BaseRequestHandler(webapp.RequestHandler):
 		is_admin = users.is_current_user_admin()
 		
 		values = { 'bloginfo' : BlogInfo(),
-				   'stat' : Stat(),
-				   'tags' : Tag.get_all(),
-				   'categories' : Category.get_all_visible_categories(),
-				   'archives' : Archive.get_all(),
-				   'friendlists' : Friendlinks.get_top_10(),
-				   'user' :  current_user,
-				   'lastposts' : Blog.get_last_10(),
-				   'lastcomments' : BlogComment.get_last_10(),
-				   'is_admin' : is_admin}
+			   'stat' : Stat(),
+			   'tags' : Tag.get_all(),
+			   'categories' : Category.get_all_visible_categories(),
+			   'archives' : Archive.get_all(),
+			   'friendlists' : Friendlinks.get_top_10(),
+			   'user' :  current_user,
+			   'lastposts' : Blog.get_last_10(),
+			   'lastcomments' : BlogComment.get_last_10(),
+			   'is_admin' : is_admin}
 		values.update(template_values)
 		self.response.out.write(template.render(template_path, values, debug=DEBUG).decode('utf-8') )
 		
