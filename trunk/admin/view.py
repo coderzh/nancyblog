@@ -19,7 +19,7 @@ __author__ = 'CoderZh'
 from google.appengine.ext import db
 
 from admin.models import Settings, Friendlinks
-from common.config import DisplayInfo
+from common.config import BlogInfo
 from common.view import BaseRequestHandler, Pager
 from blog.models import Category, BlogCategory
 
@@ -43,7 +43,7 @@ class CategoryList(BaseRequestHandler):
                 template_values['editcategory'] = Category.get_by_id(int(editcategoryid))
                 
             page_index = self.request.GET.get('page')               
-            pager = Pager('/admin/advancesettings', page_index, DisplayInfo().admin_pages)
+            pager = Pager('/admin/advancesettings', page_index, BlogInfo().admin_pages)
             pager.bind_model(Category)
             template_values['page'] = pager
             
@@ -83,7 +83,7 @@ class AdvanceSettings(BaseRequestHandler):
     def get(self):
         try:
             page_index = self.request.GET.get('page')                
-            pager = Pager('/admin/advancesettings', page_index, DisplayInfo().admin_pages)
+            pager = Pager('/admin/advancesettings', page_index, BlogInfo().admin_pages)
             pager.bind_model(Settings)
             
             template_values = { 'page' : pager }
@@ -96,7 +96,7 @@ class DeleteSettings(BaseRequestHandler):
     def get(self):
         try:
             setting_id = self.request.GET.get('id')
-            Settings.delete_setting(setting_id)
+            BlogInfo.delete_setting(setting_id)
             self.redirect('/admin/advancesettings')
         except:
             self.redirect('/500.html')
@@ -109,7 +109,7 @@ class EditSettings(BaseRequestHandler):
             name = self.request.POST.get('name')
             value = self.request.POST.get('value')
             description = self.request.POST.get('description')
-            Settings.update_setting(setting_id, name, value, description)
+            BlogInfo.update_setting(setting_id, name, value, description)
             self.redirect('/admin/advancesettings')
         except:
             self.redirect('/500.html')
@@ -124,7 +124,7 @@ class FriendlinkList(BaseRequestHandler):
                 template_values['editlink'] = Friendlinks.get_by_id(int(editlinkid))
                 
             page_index = self.request.GET.get('page')               
-            pager = Pager('/admin/advancesettings', page_index, DisplayInfo().admin_pages)
+            pager = Pager('/admin/advancesettings', page_index, BlogInfo().admin_pages)
             pager.bind_model(Friendlinks)
             
             template_values['page'] = pager

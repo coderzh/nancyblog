@@ -414,6 +414,14 @@ class BlogComment(BaseModel):
 	def create_comment(username, email, url, comment, blog_id):
 		blog = Blog.get_by_id(int(blog_id))
 		if blog:
+			if blog.author.nickname() == username:
+				current_user = users.get_current_user()
+				if not current_user:
+					username = u'%s[匿名]' % username
+				else:
+					if blog.author.nickname() != current_user.nickname():
+						username = u'%s[%s]' % (username, current_user.nickname())
+						
 			new_comment = BlogComment(username=cgi.escape(username), content=cgi.escape(comment), blog=blog)
 			if email:
 				new_comment.email = cgi.escape(email)
