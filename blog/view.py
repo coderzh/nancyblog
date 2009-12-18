@@ -24,7 +24,7 @@ import common.fckeditor as fckeditor
 import common.authorized as authorized
 import common.feedparser as feedparser
 from common.captcha import *
-from common.config import DisplayInfo
+from common.config import BlogInfo
 from common.view import BaseRequestHandler, Pager
 from blog.models import *
 from admin.models import Settings
@@ -34,22 +34,19 @@ from google.appengine.api import urlfetch,memcache
 class MainPage(BaseRequestHandler):
     def get(self):
         try:
-            page_home_key = 'page_home'
-            cache_response = memcache.get(page_home_key)
+            pager_home_key = 'pager_home'
+            pager = memcache.get(pager_home_key)
             
-            if cache_response is not None:
-                self.response.out.write(cache_response)
-            else:
+            if pager is None: 
                 page_index = self.request.GET.get('page')                
-                pager = Pager('/', page_index, DisplayInfo().blog_pages)
+                pager = Pager('/', page_index, BlogInfo().blog_pages)
                 pager.bind_datahandler(Blog.get_published_blogs_count_cache(), Blog.get_published_blogs)
-                
-                template_values = { 
-                    'page' : pager,
-                }
-                self.template_render('default.html', template_values)
-                cache_response = self.response.out.getvalue()
-                memcache.add(page_home_key, cache_response, 60)
+                memcache.add(pager_home_key, pager, 60)
+            
+            template_values = { 
+                'page' : pager,
+            }
+            self.template_render('default.html', template_values)
         except:
             self.redirect('/500.html')
         
@@ -82,7 +79,7 @@ class MonthArchive(BaseRequestHandler):
     def get(self, yearmonth):
         try:
             page_index = self.request.GET.get('page')                
-            pager = Pager('/archive/%s' % yearmonth, page_index, DisplayInfo().blog_pages)
+            pager = Pager('/archive/%s' % yearmonth, page_index, BlogInfo().blog_pages)
             pager.bind_datahandler(Archive.get_yearmonth_count(yearmonth),
                                    Blog.get_blogs_by_yearmonth,
                                    yearmonth)
@@ -190,6 +187,8 @@ class ViewBlog(BaseRequestHandler):
     def get(self, year, month, day, permalink):
         try:
             blog = Blog.all().filter('permalink =', permalink).get()
+            blog.viewcount += 1
+            blog.put()
             captcha = displayhtml('6LdMwQkAAAAAAPcIdSaDTkhqsrQxO-5f5WkrLorI')
             template_values = { 
                 'blog': blog,
@@ -228,7 +227,7 @@ class BlogList(BaseRequestHandler):
                 datahandler = Blog.get_posttype_blogs
                 
             page_index = self.request.GET.get('page')                
-            pager = Pager('/admin/bloglist', page_index, DisplayInfo().admin_pages)
+            pager = Pager('/admin/bloglist', page_index, BlogInfo().admin_pages)
             pager.bind_datahandler(items_count, datahandler)
             
             template_values = { 'page' : pager }
@@ -254,7 +253,7 @@ class AddComment(BaseRequestHandler):
             if not valifation_result.is_valid:
                 self.response.out.write('0')
                 return
-                    
+
             BlogComment.create_comment(name, email, url, comment, blog_id)
             
             self.response.out.write('1')
@@ -281,7 +280,7 @@ class ViewTag(BaseRequestHandler):
         try:
             tag_name = urllib.unquote(tag_name).decode('utf-8')
             page_index = self.request.GET.get('page')                
-            pager = Pager('/tag/%s' % tag_name, page_index, DisplayInfo().tag_pages)
+            pager = Pager('/tag/%s' % tag_name, page_index, BlogInfo().tag_pages)
             pager.bind_datahandler(Tag.get_tag(tag_name).blogs_count,
                                    Blog.get_blogs_by_tag,
                                    tag_name)
@@ -296,7 +295,7 @@ class ViewCategory(BaseRequestHandler):
         try:
             category_name = urllib.unquote(category_name).decode('utf-8')
             page_index = self.request.GET.get('page')
-            pager = Pager('/category/%s' % category_name, page_index, DisplayInfo().tag_pages)
+            pager = Pager('/category/%s' % category_name, page_index, BlogInfo().tag_pages)
             pager.bind_datahandler(Category.get_blogs_count(category_name),
                                    Blog.get_blogs_by_category,
                                    category_name)
@@ -333,26 +332,24 @@ class ErrorHandler(BaseRequestHandler):
 class RssReaderHandler(BaseRequestHandler):
     def get(self, feedname):
         try:
-            page_rssreader_key = 'page_rssreader_%s' % feedname
-            response = memcache.get(page_rssreader_key)
-            if response is not None:
-                self.response.out.write(response)
-            else:
-                rss_url_key = 'rss_%s' % feedname
-                url = Settings.get_value(rss_url_key, 'http://feeds.feedburner.com/coderzh', u'rss地址')
+            feed_result_key = 'feed_result_%s' % feedname
+            result = memcache.get(feed_result_key)
+            if result is None:
+                url_name = 'rss_%s' % feedname
+                url = getattr(BlogInfo(), url_name, u'http://feeds.feedburner.com/coderzh')
                 try_times = 0
                 result = feedparser.parse(url)
                 while result.bozo and try_times < 10:
                     try_times += 1
                     result = feedparser.parse(url)
-                rss_url_description_key = 'rss_%s_description' % feedname
-                result.feed['custom_description'] = Settings.get_value(rss_url_description_key, u'我的技术博客', u'rss描述')
-                template_values = {
-                    'feed' : result.feed,
-                    'entries' : result.entries,
-                }
-                self.template_render('viewrss.html', template_values)
-                response = self.response.out.getvalue()
-                memcache.add(page_rssreader_key, response, 36000)
+                description_name = 'rss_%s_description' % feedname
+                result.feed['custom_description'] = getattr(BlogInfo(), description_name, u'')
+                memcache.add(feed_result_key, result, 36000)
+                
+            template_values = {
+                'feed' : result.feed,
+                'entries' : result.entries,
+            }
+            self.template_render('viewrss.html', template_values)
         except:
             self.redirect('/500.html')

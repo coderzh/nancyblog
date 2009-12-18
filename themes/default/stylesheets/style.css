@@ -138,6 +138,7 @@ a:active {
 #blogTitle {
 	height: 60px;
 	clear: both;
+	float: left;
 }
 #blogTitle h1 {
 	font-size: 150%;
@@ -312,7 +313,7 @@ a:active {
 	display: none;
 }
 .newsItem {
-	padding: 15px 0 5px 0px;
+	padding: 10px 0 5px 0px;
 	margin-bottom: 8px;
 }
 
@@ -814,4 +815,15 @@ form.cmxform input.submit {
 	font-size: 15px;
 	color:#333333;
 	padding: 0px 0px 10px 0px;
+}
+
+#login {
+	float:right;
+	position: relative;
+	text-align: right;	
+}
+
+#login #loginList li {
+	float:left;
+	margin-left: 5px;
 }

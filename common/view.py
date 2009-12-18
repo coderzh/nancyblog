@@ -33,6 +33,8 @@ class BaseRequestHandler(webapp.RequestHandler):
 		
 		current_user = users.get_current_user()
 		is_admin = users.is_current_user_admin()
+		logout_url = users.create_logout_url(self.request.uri)
+		login_url = users.create_login_url(self.request.uri)
 		
 		values = { 'bloginfo' : BlogInfo(),
 			   'stat' : Stat(),
@@ -43,7 +45,10 @@ class BaseRequestHandler(webapp.RequestHandler):
 			   'user' :  current_user,
 			   'lastposts' : Blog.get_last_10(),
 			   'lastcomments' : BlogComment.get_last_10(),
-			   'is_admin' : is_admin}
+			   'is_admin' : is_admin,
+			   'logout_url' : logout_url,
+			   'login_url' : login_url,
+			   }
 		values.update(template_values)
 		self.response.out.write(template.render(template_path, values, debug=DEBUG).decode('utf-8') )
 		

@@ -32,6 +32,14 @@
 			<h1><a class="headermaintitle" href="{{ bloginfo.homepage }}">{{ bloginfo.blogtitle }}</a></h1>
 			<h2>{{ bloginfo.subtitle }}</h2>
 		</div>
+		<div id="login">
+			<ul id="loginList">
+		{% if user %}<li>{{user.nickname}} <a class="menu" href="{{logout_url}}">退出</a></li>
+		{% else %}<li><a class="menu" href="{{login_url}}">登陆</a></li>
+		{% endif %}
+		{% if is_admin %}<li><a class="menu" href="/admin">管理</a></li>{% endif %}
+			</ul>
+		</div>
 		<!--end: blogTitle 博客的标题和副标题 -->
 		<div id="navigator">
 			<ul id="navList">
@@ -39,7 +47,6 @@
 				<li><a class="menu" href="/page/myprojects">我的作品</a></li>
 				<li><a class="menu" href="/rssreader/coderzh">技术文章</a></li>
 				<li><a class="menu" href="/page/aboutme">关于我</a></li>
-                {% if is_admin %}<li><a class="menu" href="/admin">管理</a></li>{% endif %}
 			</ul>
 			<div class="blogStats">
 				随笔- {{stat.blogs_count}}&nbsp; 评论- {{stat.comments_count}}&nbsp; </div>

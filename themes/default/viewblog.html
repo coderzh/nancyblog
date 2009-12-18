@@ -33,7 +33,7 @@ var RecaptchaOptions = { theme: 'custom',lang: 'en' };
     <div class="feedbackItem">
         <div class="feedbackListSubtitle">
             <div class="feedbackManage">&nbsp; <a href="#commentForm" onclick="ReplyComment('{{comment.username}}')">回复</a>&nbsp; <a href="#commentForm" onclick="QueteComment('{{comment.username}}','{{comment.content}}')">引用</a>&nbsp;{% if is_admin %}<a href="/blog/deletecomment?id={{comment.key.id}}">删除</a>&nbsp;<a href="#">修改</a>{% endif %}</div>
-            <a href="#">#{{forloop.counter}}楼</a>&nbsp;<a name="1089695"></a>{% ifequal comment.username blog.author %}<span class="louzhu">[楼主]</span>{% endifequal %}{{ comment.time|timezone:8|date:"Y-m-j H:i" }} | {% if comment.userlink %}<a href="{{ comment.userlink|escape }}"><b>{{ comment.username|escape }}</b></a>{% else %}<b>{{ comment.username|escape }}</b>{% endif %}
+            <a href="#">#{{forloop.counter}}楼</a>&nbsp;<a name="1089695"></a>{% ifequal comment.username blog.author.nickname %}<span class="louzhu">[楼主]</span>{% endifequal %}{{ comment.time|timezone:8|date:"Y-m-j H:i" }} | {% if comment.userlink %}<a href="{{ comment.userlink|escape }}"><b>{{ comment.username|escape }}</b></a>{% else %}<b>{{ comment.username|escape }}</b>{% endif %}
 		</div>
         <div class="feedbackCon">{{ comment.content|escape }}</div>
     </div>
@@ -44,7 +44,7 @@ var RecaptchaOptions = { theme: 'custom',lang: 'en' };
 	    <legend>来个评论吧</legend>
 		<p>
 			<label for="cname">姓 名</label>
-			<input name="name" class="required" id="cname" size="42" minlength="2" />
+			<input name="name" class="required" id="cname" size="42" minlength="2" value="{{user.nickname}}" />
         </p>
 		<p>
 			<label for="cemail">邮箱(可选)</label>
