@@ -809,3 +809,9 @@ form.cmxform input.submit {
 	color: red;
 	font-size: 130%;
 }
+
+.rssdescription ul li {
+	font-size: 15px;
+	color:#333333;
+	padding: 0px 0px 10px 0px;
+}
