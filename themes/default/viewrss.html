@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block mainContent %}
+<div id="topics">
+<div class="rssdescription">
+<ul>    
+    <li>博客标题：{{ feed.title }}</li>
+    <li>子标题：{{ feed.subtitle }}</li>
+    <li>博客地址：<a href="{{ feed.link }}">{{ feed.link }}</a></li>
+    <li>订阅地址：<a href="{{ feed.title_detail.base }}">{{ feed.title_detail.base }}</a></li>
+    <li>说明：{{ feed.custom_description }}</li>
+</ul>
+</div>
+<div class="postSeparator"></div>
+<div class="topicListFooter"><a href="{{ feed.link }}">查看更多...</a></div>
+{% for entry in entries %}
+<div class="post">
+<div class="postTitle"><a class="postTitle2" href="{{ entry.link }}">{{ entry.title }}</a></div>
+<div class="postBody"></div>
+<div class="clear"></div>
+<div class="postDesc">
+    posted @ {{ entry.updated }} <a href="{{ feed.link }}">{{ entry.author }}</a>
+</div>
+<div class="clear"></div>
+</div>
+{% endfor %}
+</div>
+<div class="topicListFooter"><a href="{{ feed.link }}">查看更多...</a></div>
+{% endblock %}

@@ -22,6 +22,7 @@ from google.appengine.ext import webapp
 from common.config import DEBUG
 import blog.view
 import admin.view
+import admin.tasks
 
 from google.appengine.ext.webapp import template
 template.register_template_library('common.filter')
@@ -62,8 +63,10 @@ def main():
         #('/search/(.*)/*$', blog.SearchHandler),
         ('/tag/(.*)/*$', blog.view.ViewTag),
         ('/category/(.*)/*$', blog.view.ViewCategory),
+        ('/rssreader/(.*)/*$', blog.view.RssReaderHandler),
         ('/atom/*$', blog.view.FeedHandler),
         #('/sitemap/*$', blog.SiteMapHandler),
+        ('/tasks/flushmemcache/*$', admin.tasks.FlushMemcache),
         ('/500.html', blog.view.ErrorHandler),
         ('/(.*)', blog.view.NotFoundHandler),
     ], debug = DEBUG)

@@ -28,8 +28,7 @@
 <div id="home">
 	<div id="header">
 		<div id="blogTitle">
-			<a id="lnkBlogLogo" href="#">
-			<img id="blogLogo" src="/images/logo.jpg" alt="博客logo" /></a>
+			<img id="blogLogo" src="/images/logo.jpg" alt="博客logo" />
 			<h1><a class="headermaintitle" href="{{ bloginfo.homepage }}">{{ bloginfo.blogtitle }}</a></h1>
 			<h2>{{ bloginfo.subtitle }}</h2>
 		</div>
@@ -38,6 +37,7 @@
 			<ul id="navList">
 				<li><a class="menu" href="/">首页</a></li>
 				<li><a class="menu" href="/page/myprojects">我的作品</a></li>
+				<li><a class="menu" href="/rssreader/coderzh">技术文章</a></li>
 				<li><a class="menu" href="/page/aboutme">关于我</a></li>
                 {% if is_admin %}<li><a class="menu" href="/admin">管理</a></li>{% endif %}
 			</ul>

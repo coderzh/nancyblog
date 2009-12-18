@@ -22,6 +22,7 @@ import datetime
 import cgi
 import common.fckeditor as fckeditor
 import common.authorized as authorized
+import common.feedparser as feedparser
 from common.captcha import *
 from common.config import DisplayInfo
 from common.view import BaseRequestHandler, Pager
@@ -33,24 +34,25 @@ from google.appengine.api import urlfetch,memcache
 class MainPage(BaseRequestHandler):
     def get(self):
         try:
-            key_home = 'home'
-            #cache_home = memcache.get(key_home)
+            page_home_key = 'page_home'
+            cache_response = memcache.get(page_home_key)
             
-            #if cache_home is not None:
-            #    self.response.out.write(cache_home)
-            #    return
-            page_index = self.request.GET.get('page')                
-            pager = Pager('/', page_index, DisplayInfo().blog_pages)
-            pager.bind_datahandler(Blog.get_published_blogs_count_cache(), Blog.get_published_blogs)
-            
-            template_values = { 
-                'page' : pager,
-            }
-            self.template_render('default.html', template_values)
+            if cache_response is not None:
+                self.response.out.write(cache_response)
+            else:
+                page_index = self.request.GET.get('page')                
+                pager = Pager('/', page_index, DisplayInfo().blog_pages)
+                pager.bind_datahandler(Blog.get_published_blogs_count_cache(), Blog.get_published_blogs)
+                
+                template_values = { 
+                    'page' : pager,
+                }
+                self.template_render('default.html', template_values)
+                cache_response = self.response.out.getvalue()
+                memcache.add(page_home_key, cache_response, 60)
         except:
             self.redirect('/500.html')
-        #cache_home = self.response.out.getvalue()
-        #memcache.add(key_home, cache_home)
+        
 
 class PageHandle(BaseRequestHandler):
     def get(self, page_name):
@@ -327,3 +329,30 @@ class NotFoundHandler(BaseRequestHandler):
 class ErrorHandler(BaseRequestHandler):
     def get(self):
         self.template_render('500.html')
+        
+class RssReaderHandler(BaseRequestHandler):
+    def get(self, feedname):
+        try:
+            page_rssreader_key = 'page_rssreader_%s' % feedname
+            response = memcache.get(page_rssreader_key)
+            if response is not None:
+                self.response.out.write(response)
+            else:
+                rss_url_key = 'rss_%s' % feedname
+                url = Settings.get_value(rss_url_key, 'http://feeds.feedburner.com/coderzh', u'rss地址')
+                try_times = 0
+                result = feedparser.parse(url)
+                while result.bozo and try_times < 10:
+                    try_times += 1
+                    result = feedparser.parse(url)
+                rss_url_description_key = 'rss_%s_description' % feedname
+                result.feed['custom_description'] = Settings.get_value(rss_url_description_key, u'我的技术博客', u'rss描述')
+                template_values = {
+                    'feed' : result.feed,
+                    'entries' : result.entries,
+                }
+                self.template_render('viewrss.html', template_values)
+                response = self.response.out.getvalue()
+                memcache.add(page_rssreader_key, response, 36000)
+        except:
+            self.redirect('/500.html')

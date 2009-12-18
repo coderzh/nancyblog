@@ -1,0 +1,4 @@
+cron:
+- description: daily flush memcache
+  url: /tasks/flushmemcache
+  schedule: every 24 hours

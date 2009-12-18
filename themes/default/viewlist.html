@@ -7,7 +7,7 @@
 <div class="postBody">{{ blog.content|truncatewords:"100"  }}</div>
 <div class="clear"></div>
 <div class="postDesc">
-    posted @ {{ blog.publishtime|date:"Y-m-j H:i" }} {{ blog.author.nickname }}</a> | <a href="{{blog.url}}#commentForm" title="comments">评论 ({{ blog.commentcount }})</a></div>
+    posted @ {{ blog.publishtime|timezone:8|date:"Y-m-j H:i" }} {{ blog.author.nickname }}</a> | <a href="{{blog.url}}#commentForm" title="comments">评论 ({{ blog.commentcount }})</a></div>
 <div class="clear"></div>
 </div>
 {% endfor %}
