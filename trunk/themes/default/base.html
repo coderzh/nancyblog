@@ -44,7 +44,7 @@
 		<div id="navigator">
 			<ul id="navList">
 				<li><a class="menu" href="/">首页</a></li>
-				<li><a class="menu" href="/page/myprojects">我的作品</a></li>
+				<li><a class="menu" href="/page/myprojects">我的项目</a></li>
 				<li><a class="menu" href="/rssreader/coderzh">技术文章</a></li>
 				<li><a class="menu" href="/page/aboutme">关于我</a></li>
 			</ul>
@@ -123,10 +123,19 @@
 	</div>
 	<div id="footer">
 		<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
-alt="Powered by Google App Engine" />&nbsp;Copyright ©2009 NancyBlog By {{ bloginfo.author }}</div>
-	<!--end: footer --></div>
-<!--end: home 自定义的最大容器 -->
-
+alt="Powered by Google App Engine" />&nbsp;Copyright ©2009 <a href="http://code.google.com/p/nancyblog/">NancyBlog</a> By {{ bloginfo.author }}
+	<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-10147768-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>	
+	</div>
+	<!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
 </body>
 
 </html>

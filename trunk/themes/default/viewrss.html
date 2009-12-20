@@ -14,7 +14,7 @@
 <div class="topicListFooter"><a href="{{ feed.link }}">查看更多...</a></div>
 {% for entry in entries %}
 <div class="post">
-<div class="postTitle"><a class="postTitle2" href="{{ entry.link }}">{{ entry.title }}</a></div>
+<div class="postTitle"><a class="postTitle2" href="{% if entry.feedburner_origlink %}{{ entry.feedburner_origlink }}{% else %}{{ entry.link }}{% endif %}">{{ entry.title }}</a></div>
 <div class="postBody"></div>
 <div class="clear"></div>
 <div class="postDesc">

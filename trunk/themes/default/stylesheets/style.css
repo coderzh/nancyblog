@@ -631,10 +631,10 @@ padding-right:16px;
 **************************************************/
 /*文章内部常用标签格式*/
 .postBody {
-	line-height: 1.5em;
+	line-height: 2em;
 }
 .postBody p,.postCon  p{
-	margin: 0 auto 5px auto;
+	margin: 0 auto 8px auto;
 }
 .postBody h2{
 	font-size: 150%;
