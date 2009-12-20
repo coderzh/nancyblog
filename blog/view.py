@@ -63,6 +63,8 @@ class PageHandle(BaseRequestHandler):
                     'blog': blog,
                     'reCAPTCHA' : captcha,
                     }
+                blog.viewcount += 1
+                blog.put()
                 self.template_render('viewblog.html', template_values)
         except:
             self.redirect('/500.html')
@@ -341,6 +343,7 @@ class RssReaderHandler(BaseRequestHandler):
                 result = feedparser.parse(url)
                 while result.bozo and try_times < 10:
                     try_times += 1
+                    time.sleep(1)
                     result = feedparser.parse(url)
                 description_name = 'rss_%s_description' % feedname
                 result.feed['custom_description'] = getattr(BlogInfo(), description_name, u'')
