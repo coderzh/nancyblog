@@ -68,3 +68,20 @@ indexes:
   - name: entrytype
   - name: publishtime
     direction: desc
+
+- kind: BlogCategory
+  properties:
+  - name: category
+  - name: __key__
+    direction: desc
+
+- kind: BlogComment
+  properties:
+  - name: blog
+  - name: time
+
+- kind: BlogComment
+  properties:
+  - name: blog
+  - name: time
+    direction: desc
