@@ -55,7 +55,7 @@ class BlogInfo(object):
             'blogtitle' : ('Nancy Blog', u'博客标题'),
             'subtitle' : ('This is NancyBlog', u'子标题'),
             'theme' : ('default', u'博客皮肤'),
-            'announce' : ('欢迎使用NancyBlog', u'公告'),
+            'announce' : (u'欢迎使用NancyBlog', u'公告'),
             'admin_pages' : ('20', u'管理页面每页显示条数'),
             'blog_pages' : ('20', u'首页博客每页显示条数'),
             'comment_pages' : ('50', u'评论每页显示条数'),
