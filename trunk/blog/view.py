@@ -31,12 +31,14 @@ from admin.models import Settings
 
 from google.appengine.api import urlfetch,memcache
 
+# for pdb debug
+from common.debug import set_trace
+
 class MainPage(BaseRequestHandler):
     def get(self):
         try:
             pager_home_key = 'pager_home'
             pager = memcache.get(pager_home_key)
-            
             if pager is None: 
                 page_index = self.request.GET.get('page')                
                 pager = Pager('/', page_index, BlogInfo().blog_pages)
@@ -247,7 +249,7 @@ class AddComment(BaseRequestHandler):
             url = self.request.POST.get('url')
             email = self.request.POST.get('email')
     
-            comment = comment.replace('\n', '<br />')
+            comment = cgi.escape(comment).replace('\n', '<br/>')
             recaptcha_challenge_field = self.request.POST.get('recaptcha_challenge_field')
             recaptcha_response_field = self.request.POST.get('recaptcha_response_field')
             valifation_result = submit(recaptcha_challenge_field, recaptcha_response_field,'6LdMwQkAAAAAALf6TyLYGIZyuWdDM0CItskn7Ck3', self.request.remote_addr)

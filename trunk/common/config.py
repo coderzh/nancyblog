@@ -64,7 +64,7 @@ class BlogInfo(object):
             'rss_coderzh_description' : (u'我的技术博客', u'rss描述'),
         }
         
-        for name, value in init_values.items:
+        for name, value in init_values.items():
             setting = Settings(name=name, value=value[0], description=value[1])
             setting.put()
             BlogInfo.__shared_values[name] = value[0]

@@ -201,7 +201,7 @@ class Blog(BaseModel):
 		blogs = []
 		category = Category.all().filter('name =', category_name).get()
 		if category:
-			query = BlogCategory.all().filter('category =', category)
+			query = BlogCategory.all().filter('category =', category).order('-__key__')
 			blogcategories = query.fetch(per_page, offset=((page-1)*per_page))
 			for blogcategory in blogcategories:
 				blogs.append(blogcategory.blog)
@@ -338,7 +338,7 @@ class Blog(BaseModel):
 	
 	def comments(self, per_page=30, page=0):
 		query = BlogComment.all()
-		query.filter('blog =', self)
+		query.filter('blog =', self).order('time')
 		return query.fetch(per_page, offset=(page*per_page))
 	
 	@property
@@ -422,7 +422,7 @@ class BlogComment(BaseModel):
 					if blog.author.nickname() != current_user.nickname():
 						username = u'%s[%s]' % (username, current_user.nickname())
 						
-			new_comment = BlogComment(username=cgi.escape(username), content=cgi.escape(comment), blog=blog)
+			new_comment = BlogComment(username=cgi.escape(username), content=comment, blog=blog)
 			if email:
 				new_comment.email = cgi.escape(email)
 			if url:
