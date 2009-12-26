@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head id="Head">
-<title>{{ bloginfo.blogtitle }}</title>
+<title>{% if blog %}{{ blog.title }} - {% endif %}{{ bloginfo.blogtitle }}</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta id="metaKeywords" name="keywords" content="CoderZh,NancyBlog,博客"/>
 <link id="MainCss" type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
@@ -71,8 +71,14 @@
 	                <div class="mySearch">
 						<h3 class="catListTitle">搜索</h3>
 						<div>
-							<input type="text" name="" id="q" />
-							<input type="button" name="" value="搜索" /> </div>
+						  <form method="get" action="http://www.google.cn/search">
+						        <input name="sitesearch" value="{{bloginfo.homepage}}" type="hidden">
+							<input name="hl" value="zh-CN" type="hidden">
+							<input name="ie" value="utf-8" type="hidden">
+							<input type="text" name="q" id="query" />
+							<input type="submit" name="Search" value="搜索" />
+						  </form>
+						</div>
 					</div>
                     <div class="catListLink">
 						<h3 class="catListTitle">我的标签</h3>
