@@ -18,10 +18,10 @@ __author__ = 'CoderZh'
 
 from admin.models import Settings
 
-DEBUG = True
+DEBUG = False
 
 THEMES_FOLDER = 'themes'
-THEMES = 'default'
+THEMES = '5styles-port'
 
 class BlogInfo(object):
     __shared_values = {}
