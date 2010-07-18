@@ -9,13 +9,13 @@ handlers:
   upload: static/favicon.ico
   
 - url: /images
-  static_dir: themes/default/images
+  static_dir: themes/5styles-port/images
   
 - url: /stylesheets
-  static_dir: themes/default/stylesheets
+  static_dir: themes/5styles-port/stylesheets
   
 - url: /javascript
-  static_dir: themes/default/javascript
+  static_dir: themes/5styles-port/javascript
   
 - url: /fckeditor
   static_dir: static/fckeditor
