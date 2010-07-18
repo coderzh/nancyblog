@@ -1,0 +1,70 @@
+<div id="sidebar">
+	{% include "search.html" %}
+	<ul id="sidebarul">
+		
+		<li>
+			<h2>公告栏</h2>
+			<p>
+				{{bloginfo.announce}}
+			</p>
+		</li>	
+
+		<li>
+			<h2>最新文章</h2>
+			<ul>
+				{% for lastpost in lastposts %}
+				<li><a href="{{lastpost.url|escape}}" title="{{lastpost.title|escape}}">{{lastpost.title|escape}}</a></li>
+				{%endfor%}
+			</ul>
+		</li>	
+		
+		<li>
+			<h2>最新评论</h2>
+			<ul>
+				{% for comment in lastcomments %}
+				<li>
+				<a href="{{comment.blog.url}}" title="发表于：{{comment.blog.title|escape}}">{{comment.username}}</a>&nbsp;说道：{{comment.content}}...
+				</li>
+				{%endfor%}
+			</ul>
+		</li>
+
+		<li>
+			<h2>文章分类</h2>
+			<ul class="side-cat" >
+				{%for cate in categories%}
+				<li><a href="{{cate.url|urlencode}}">{{cate.name}}</a>({{cate.blogs_count}})</li>
+				{%endfor%}
+			</ul>
+			<div class="clear"></div>    
+		</li>
+
+		<li>
+			<h2>归档</h2>
+			<ul class="side-cat" >
+				{%for archive in archives%}
+				<li><a href="{{archive.url}}">{{archive.yearmonth}}</a>({{archive.count}})</li>
+				{%endfor%}
+			</ul>
+			<div class="clear"></div> 
+		</li>
+
+		<li>
+			<h2>标签云</h2>
+			{% for t in tags %}
+			<a title="{{ t.blogs_count }} pages" href="{{t.url|urlencode}}"><span style='font-size:{{ t.blogs_count|add:9 }}px;'>{{t.name}}</span></a>
+			{%endfor%}
+		</li>
+
+		<li>
+			<h2>友情链接</h2>
+			<ul>
+				{%for link in friendlists%}
+				<li><a href="{{link.url}}" target="_blank">{{link.title}}</a></li>
+				{%endfor%}
+			</ul>
+		</li>
+	</ul>
+</div>
+
+
