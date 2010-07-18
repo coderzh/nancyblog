@@ -1,0 +1,71 @@
+﻿<!-- comments  -->
+<script type="text/javascript" src="/javascript/jquery.js"></script>
+<script type="text/javascript" src="/javascript/jquery.validate.js"></script>
+<script type="text/javascript" src="/javascript/common.js"></script>
+
+<script type="text/javascript">
+var RecaptchaOptions = { theme: 'custom',lang: 'en' };
+</script>
+
+<a name="comments"></a> <!--回复使用的锚-->
+<div id="comments-wrap">
+
+    <h2 id="respond">{{ blog.commentcount }} 条评论</h2><span class="goto-comment"><a href="#commentForm">我要留言</a></span>
+        {% if blog.comments %}
+        <ul id="thecomments">
+        {% for comment in blog.comments %}
+        <li id="comment-{{comment.key.id}}" class="comment">
+            <div class="commentleft">
+                <div class="commentcount"> #{{forloop.counter}} </div>
+                <div id="gravatar"><img alt='' src='/images/avatar.jpeg' class='avatar avatar-36 photo avatar-default' height='36' width='36' /></div>
+            </div>
+            <div class="commentright">
+                <p class="header" > 
+				  {% ifequal comment.username blog.author.nickname %}<span class="louzhu">[楼主]</span>{% endifequal %}{{ comment.time|timezone:8|date:"Y-m-j H:i" }} | {% if comment.userlink %}<a href="{{ comment.userlink|escape }}"><b>{{ comment.username|escape }}</b></a>{% else %}<b>{{ comment.username|escape }}</b>{% endif %}
+				  <a href="#commentForm" onclick="ReplyComment('{{comment.username}}')">回复</a>&nbsp; <a href="#commentForm" onclick="QueteComment('{{comment.username}}','{{comment.content}}')">引用</a>&nbsp;{% if is_admin %}<a href="/blog/deletecomment?id={{comment.key.id}}">删除</a>&nbsp;<a href="#">修改</a>{% endif %}
+				  
+				</p>
+                <div class="commenttext" id="commenttext-{{comment.key.id}}">{{comment.content}}</div>
+            </div>  
+        </li>
+        {% endfor %}
+        </ul>
+        {% else %}
+        <ul id="thecomments"></ul>
+        {% endif %}
+
+</div> 
+
+<input type="hidden" value="{{blog.key.id}}" id="blogid" />
+<form class="cmxform" id="commentForm" method="post" action="">
+	<fieldset>
+	    <legend>来个评论吧</legend>
+		<p>
+			<label for="cname">姓名(必填)</label>
+			<input name="name" class="required" id="cname" size="42" minlength="2" value="{{user.nickname}}" />
+        </p>
+		<p>
+			<label for="cemail">邮箱(可选)</label>
+			<input id="cemail" name="email" class="email" size="42" />
+		</p>
+		<p>
+			<label for="curl">主页(可选)</label>
+			<input id="curl" name="url" class="url" value="" size="42" />
+		</p>
+		<p>
+			<label for="ccomment">评论(必填)</label>
+			<textarea id="ccomment" name="comment" rows="12" cols="52" class="required"></textarea>
+		</p>
+        <p>
+        	<a href="javascript:Recaptcha.reload()"><div id="recaptcha_image"></div></a>
+        </p>
+        <p>
+        	<label for="url" id="url_label">验证码</label>
+            <input type="text" id="recaptcha_response_field" name="recaptcha_response_field" />{{reCAPTCHA}}
+        </p>
+		<p>
+			<input class="submit" type="submit" value="提交"/>&nbsp;&nbsp;&nbsp;&nbsp;<span id="message"></span>
+		</p>
+	</fieldset>
+</form>
+<!-- /comments -->

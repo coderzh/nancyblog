@@ -1,0 +1,47 @@
+﻿{% extends "base.html" %}
+
+{% block title %} {{blog.title|escape}} - {{blog.title|escape}} {% endblock %}
+
+{% block head_block %}
+
+{% if entry %}
+{%if blog.tags%}<meta name="Keywords" content="{{blog.tags|escape}}" />{%endif%}
+{% endif %}
+
+<script type="text/javascript">
+var RecaptchaOptions = { theme: 'custom',lang: 'en' };
+</script>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+	<div id="main">
+		<div id="maincontent"><div class="forFlow">
+		{% if blog %}
+			<div class="post" id="post-{{blog.key}}">
+				<h2 class="post-title"><a href="{{blog.url|escape}}" rel="bookmark" title="{{ blog.title|escape }}">{{ blog.title|escape }}</a></h2>
+				<div class="postmetadata-top">
+					<span class="post-comments"><a href="{{blog.url|escape}}#commentsForm">{{blog.commentcount}} 条评论</a></span>
+					<span class="post-date">{{blog.publishtime|timezone:8|date:"Y-m-j H:i"}}</span>
+					<span class="post-views"><a href="{{blog.url|escape}}">{{blog.viewcount}} 次阅读</a></span>
+				</div>
+				<div class="entry">
+					{{ blog.content }}
+				</div>
+			</div>
+
+		{% include "comments.html" %}
+		
+		{% else %}
+			<h2 class="center">Not Found</h2>
+			<p class="center">不好意思，您所查看的内容不再这里，您可以通过侧栏搜索工具查一下。</p>
+		{% endif %}
+		
+		</div></div>
+		
+		{% include "sidebar.html" %}
+	</div>
+{% endblock %}
