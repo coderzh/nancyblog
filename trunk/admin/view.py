@@ -109,10 +109,14 @@ class EditSettings(BaseRequestHandler):
             name = self.request.POST.get('name')
             value = self.request.POST.get('value')
             description = self.request.POST.get('description')
-            BlogInfo.update_setting(setting_id, name, value, description)
+            if setting_id:
+                BlogInfo.update_setting(setting_id, name, value, description)
+            else:
+                BlogInfo.create_setting(name, value, description)
             self.redirect('/admin/advancesettings')
         except:
             self.redirect('/500.html')
+
 
 class FriendlinkList(BaseRequestHandler):
     @authorized.role('admin')
