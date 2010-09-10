@@ -102,7 +102,7 @@ class AddBlog(BaseRequestHandler):
                 entrytype = 'page'
             oFCKeditor = fckeditor.FCKeditor('text_input')
             oFCKeditor.Height = 500
-            oFCKeditor.BasePath = '/fckeditor/'
+            oFCKeditor.BasePath = '/static/fckeditor/'
 
             fckeditor_html = oFCKeditor.Create()
 
@@ -146,7 +146,7 @@ class EditBlog(BaseRequestHandler):
 
             oFCKeditor = fckeditor.FCKeditor('text_input')
             oFCKeditor.Height = 500
-            oFCKeditor.BasePath = '/fckeditor/'
+            oFCKeditor.BasePath = '/static/fckeditor/'
             oFCKeditor.Value = blog.content
 
             fckeditor_html = oFCKeditor.Create()

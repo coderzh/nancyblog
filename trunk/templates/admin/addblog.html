@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block inhead %}
-<script type="text/javascript" src="/fckeditor/fckeditor.js"></script>
+<script type="text/javascript" src="/static/fckeditor/fckeditor.js"></script>
 {% endblock %}
 {% block mainContent %}
 <h1 class="PostListTitle">{% if editblog %}编辑{% else %}添加{% endif %}{% ifequal entrytype "page" %}页面{% else %}文章{% endifequal %}</h1>
