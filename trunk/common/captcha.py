@@ -30,15 +30,15 @@ def displayhtml (public_key,
     return """<script type="text/javascript" src="%(ApiServer)s/challenge?k=%(PublicKey)s%(ErrorParam)s"></script>
 
 <noscript>
-  <iframe src="%(ApiServer)s/noscript?k=%(PublicKey)s%(ErrorParam)s" height="300" width="500" frameborder="0"></iframe><br />
-  <textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
-  <input type='hidden' name='recaptcha_response_field' value='manual_challenge' />
+           <iframe src="%(ApiServer)s/noscript?k=%(PublicKey)s%(ErrorParam)s" height="300" width="500" frameborder="0"></iframe><br />
+           <textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
+           <input type='hidden' name='recaptcha_response_field' value='manual_challenge' />
 </noscript>
 """ % {
         'ApiServer' : server,
         'PublicKey' : public_key,
         'ErrorParam' : error_param,
-        }
+    }
 
 
 def submit (recaptcha_challenge_field,
@@ -58,7 +58,7 @@ def submit (recaptcha_challenge_field,
     if not (recaptcha_response_field and recaptcha_challenge_field and
             len (recaptcha_response_field) and len (recaptcha_challenge_field)):
         return RecaptchaResponse (is_valid = False, error_code = 'incorrect-captcha-sol')
-    
+
 
     def encode_if_necessary(s):
         if isinstance(s, unicode):
@@ -66,11 +66,11 @@ def submit (recaptcha_challenge_field,
         return s
 
     params = urllib.urlencode ({
-            'privatekey': encode_if_necessary(private_key),
-            'remoteip' :  encode_if_necessary(remoteip),
-            'challenge':  encode_if_necessary(recaptcha_challenge_field),
-            'response' :  encode_if_necessary(recaptcha_response_field),
-            })
+        'privatekey': encode_if_necessary(private_key),
+        'remoteip' :  encode_if_necessary(remoteip),
+        'challenge':  encode_if_necessary(recaptcha_challenge_field),
+        'response' :  encode_if_necessary(recaptcha_response_field),
+    })
 
     request = urllib2.Request (
         url = "http://%s/verify" % VERIFY_SERVER,
@@ -78,9 +78,9 @@ def submit (recaptcha_challenge_field,
         headers = {
             "Content-type": "application/x-www-form-urlencoded",
             "User-agent": "reCAPTCHA Python"
-            }
-        )
-    
+        }
+    )
+
     httpresp = urllib2.urlopen (request)
 
     return_values = httpresp.read ().splitlines ();

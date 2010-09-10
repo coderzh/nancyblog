@@ -44,14 +44,15 @@ class MainPage(BaseRequestHandler):
                 pager = Pager('/', page_index, BlogInfo().blog_pages)
                 pager.bind_datahandler(Blog.get_published_blogs_count_cache(), Blog.get_published_blogs)
                 memcache.add(pager_home_key, pager, 60)
-            
+
             template_values = { 
                 'page' : pager,
             }
-            self.template_render('default.html', template_values)
+            self.template_render_theme('index.html', template_values)
         except:
-            self.redirect('/500.html')
-        
+            raise
+#            self.redirect('/500.html')
+
 
 class PageHandle(BaseRequestHandler):
     def get(self, page_name):
@@ -64,13 +65,13 @@ class PageHandle(BaseRequestHandler):
                 template_values = { 
                     'blog': blog,
                     'reCAPTCHA' : captcha,
-                    }
+                }
                 blog.viewcount += 1
                 blog.put()
-                self.template_render('viewblog.html', template_values)
+                self.template_render_theme('blog.html', template_values)
         except:
             self.redirect('/500.html')
-                
+
 class YearArchive(BaseRequestHandler):
     def get(self, year):
         try:
@@ -78,7 +79,7 @@ class YearArchive(BaseRequestHandler):
             self.template_render('blog/year.html', template_values)
         except:
             self.redirect('/500.html')
-        
+
 class MonthArchive(BaseRequestHandler):
     def get(self, yearmonth):
         try:
@@ -87,9 +88,9 @@ class MonthArchive(BaseRequestHandler):
             pager.bind_datahandler(Archive.get_yearmonth_count(yearmonth),
                                    Blog.get_blogs_by_yearmonth,
                                    yearmonth)
-            
+
             template_values = { 'page' : pager }
-            self.template_render('viewlist.html', template_values)
+            self.template_render_theme('bloglist.html', template_values)
         except:
             self.redirect('/500.html')
 
@@ -103,17 +104,17 @@ class AddBlog(BaseRequestHandler):
             oFCKeditor = fckeditor.FCKeditor('text_input')
             oFCKeditor.Height = 500
             oFCKeditor.BasePath = '/fckeditor/'
-    
+
             fckeditor_html = oFCKeditor.Create()
-    
+
             template_values = { 'categories' : Category.get_all_visible_categories(1000),
                                 'fckeditor' : fckeditor_html,
                                 'entrytype' : entrytype}
-            
+
             self.template_render('admin/addblog.html', template_values)
         except:
             self.redirect('/500.html')
-    
+
     @authorized.role('admin')
     def post(self):
         try:
@@ -125,30 +126,30 @@ class AddBlog(BaseRequestHandler):
             if self.request.POST.get('submitdraft'):
                 draft = True
             entrytype = self.request.POST.get('entrytype')
-            
+
             new_blog = Blog.create_blog(permalink, title, content, tags, draft=draft, entrytype=entrytype)
-            
+
             categories = Category.get_all_visible_categories()
             for category in categories:
                 if self.request.POST.get('category_%s' % category.key().id()) is not None:
                     BlogCategory.create_blogcategory(new_blog, category)
-            
+
             self.redirect(new_blog.url)
         except:
             self.redirect('/500.html')
-        
+
 class EditBlog(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
         try:
             blog_id = self.request.GET.get('id')
             blog = Blog.get_by_id(int(blog_id))
-            
+
             oFCKeditor = fckeditor.FCKeditor('text_input')
             oFCKeditor.Height = 500
             oFCKeditor.BasePath = '/fckeditor/'
             oFCKeditor.Value = blog.content
-            
+
             fckeditor_html = oFCKeditor.Create()
             template_values = { 'editblog' : blog, 'categories' : Category.get_all_visible_categories(1000),
                                 'fckeditor' : fckeditor_html,
@@ -156,7 +157,7 @@ class EditBlog(BaseRequestHandler):
             self.template_render('admin/addblog.html', template_values)
         except:
             self.redirect('/500.html')
-    
+
     @authorized.role('admin')
     def post(self):
         try:
@@ -169,9 +170,9 @@ class EditBlog(BaseRequestHandler):
             draft = False
             if self.request.POST.get('submitdraft'):
                 draft = True
-            
+
             blog = Blog.update_blog(blog_id, permalink, title, content, tags, draft=draft, entrytype=entrytype)
-            
+
             categories = Category.get_all_visible_categories()
             for category in categories:
                 blogcategory = BlogCategory.all().filter('blog =', blog).filter('category =', category).get()
@@ -181,11 +182,11 @@ class EditBlog(BaseRequestHandler):
                 else:
                     if blogcategory:
                         BlogCategory.delete_blogcategory(blogcategory)
-            
+
             self.redirect(blog.url)
         except:
             self.redirect('/500.html')
-        
+
 
 class ViewBlog(BaseRequestHandler):
     def get(self, year, month, day, permalink):
@@ -198,7 +199,7 @@ class ViewBlog(BaseRequestHandler):
                 'blog': blog,
                 'reCAPTCHA' : captcha,
             }
-            self.template_render('viewblog.html', template_values)
+            self.template_render_theme('blog.html', template_values)
         except:
             self.redirect('/500.html')
 
@@ -229,16 +230,16 @@ class BlogList(BaseRequestHandler):
             else:
                 items_count = Blog.get_posttype_blogs_count()
                 datahandler = Blog.get_posttype_blogs
-                
+
             page_index = self.request.GET.get('page')                
             pager = Pager('/admin/bloglist', page_index, BlogInfo().admin_pages)
             pager.bind_datahandler(items_count, datahandler)
-            
+
             template_values = { 'page' : pager }
             self.template_render('admin/bloglist.html', template_values)
         except:
             self.redirect('/500.html')
-        
+
 class AddComment(BaseRequestHandler):
     def post(self):
         self.response.headers['Content-Type'] = 'text/plain'
@@ -248,22 +249,22 @@ class AddComment(BaseRequestHandler):
             comment = self.request.POST.get('comment')
             url = self.request.POST.get('url')
             email = self.request.POST.get('email')
-    
+
             comment = cgi.escape(comment).replace('\n', '<br/>')
             recaptcha_challenge_field = self.request.POST.get('recaptcha_challenge_field')
             recaptcha_response_field = self.request.POST.get('recaptcha_response_field')
             valifation_result = submit(recaptcha_challenge_field, recaptcha_response_field,'6LdMwQkAAAAAALf6TyLYGIZyuWdDM0CItskn7Ck3', self.request.remote_addr)
-              
+
             if not valifation_result.is_valid:
                 self.response.out.write('0')
                 return
 
             BlogComment.create_comment(name, email, url, comment, blog_id)
-            
+
             self.response.out.write('1')
         except:
             self.response.out.write('-1')
-            
+
 class DeleteComment(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
@@ -273,12 +274,12 @@ class DeleteComment(BaseRequestHandler):
             self.redirect(blog.url)
         except:
             self.redirect('/500.html')
-            
+
 class EditComment(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
         pass
-    
+
 class ViewTag(BaseRequestHandler):
     def get(self, tag_name):
         try:
@@ -288,12 +289,12 @@ class ViewTag(BaseRequestHandler):
             pager.bind_datahandler(Tag.get_tag(tag_name).blogs_count,
                                    Blog.get_blogs_by_tag,
                                    tag_name)
-            
+
             template_values = { 'page' : pager }
-            self.template_render('viewlist.html', template_values)
+            self.template_render_theme('bloglist.html', template_values)
         except:
             self.redirect('/500.html')
-        
+
 class ViewCategory(BaseRequestHandler):
     def get(self, category_name):
         try:
@@ -303,12 +304,12 @@ class ViewCategory(BaseRequestHandler):
             pager.bind_datahandler(Category.get_blogs_count(category_name),
                                    Blog.get_blogs_by_category,
                                    category_name)
-            
+
             template_values = { 'page' : pager }
-            self.template_render('viewlist.html', template_values)
+            self.template_render_theme('bloglist.html', template_values)
         except:
             self.redirect('/500.html')
-            
+
 class FeedHandler(BaseRequestHandler):
     def get(self):
         blogs = Blog.get_last_10()
@@ -324,7 +325,7 @@ class FeedHandler(BaseRequestHandler):
             'last_updated' : last_updated,
         }
         self.template_render('atom.xml', template_values)
-        
+
 class NotFoundHandler(BaseRequestHandler):
     def get(self, url):
         self.template_render('404.html', { 'url' : url })
@@ -332,7 +333,7 @@ class NotFoundHandler(BaseRequestHandler):
 class ErrorHandler(BaseRequestHandler):
     def get(self):
         self.template_render('500.html')
-        
+
 class RssReaderHandler(BaseRequestHandler):
     def get(self, feedname):
         try:
@@ -350,11 +351,11 @@ class RssReaderHandler(BaseRequestHandler):
                 description_name = 'rss_%s_description' % feedname
                 result.feed['custom_description'] = getattr(BlogInfo(), description_name, u'')
                 memcache.add(feed_result_key, result, 36000)
-                
+
             template_values = {
                 'feed' : result.feed,
                 'entries' : result.entries,
             }
-            self.template_render('viewrss.html', template_values)
+            self.template_render_theme('viewrss.html', template_values)
         except:
             self.redirect('/500.html')

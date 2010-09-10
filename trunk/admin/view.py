@@ -41,12 +41,12 @@ class CategoryList(BaseRequestHandler):
             editcategoryid = self.request.GET.get('editcategoryid')
             if editcategoryid:
                 template_values['editcategory'] = Category.get_by_id(int(editcategoryid))
-                
+
             page_index = self.request.GET.get('page')               
             pager = Pager('/admin/advancesettings', page_index, BlogInfo().admin_pages)
             pager.bind_model(Category)
             template_values['page'] = pager
-            
+
             self.template_render('admin/categorylist.html', template_values)
         except:
             self.redirect('/500.html')
@@ -59,16 +59,16 @@ class AddCategory(BaseRequestHandler):
             category_description = self.request.POST.get('category_description')
             category_visible = self.request.POST.get('category_visible')
             edit_categoryid = self.request.POST.get('editcategoryid')
-    
+
             if edit_categoryid:
                 Category.update_category(edit_categoryid, category_name, category_description, category_visible == u'on')
             else:
                 Category.create_category(category_name, category_description, category_visible == u'on')
-        
+
             self.redirect('/admin/categorylist')
         except:
             self.redirect('/500.html')
-    
+
 class DeleteCategory(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
@@ -77,7 +77,7 @@ class DeleteCategory(BaseRequestHandler):
             Category.delete_category(category_id)
         finally:
             self.redirect('/admin/categorylist')
-        
+
 class AdvanceSettings(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
@@ -85,12 +85,12 @@ class AdvanceSettings(BaseRequestHandler):
             page_index = self.request.GET.get('page')                
             pager = Pager('/admin/advancesettings', page_index, BlogInfo().admin_pages)
             pager.bind_model(Settings)
-            
+
             template_values = { 'page' : pager }
             self.template_render('admin/advancesettings.html', template_values)
         except:
             self.redirect('/500.html')
-            
+
 class DeleteSettings(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
@@ -100,7 +100,7 @@ class DeleteSettings(BaseRequestHandler):
             self.redirect('/admin/advancesettings')
         except:
             self.redirect('/500.html')
-            
+
 class EditSettings(BaseRequestHandler):
     @authorized.role('admin')
     def post(self):
@@ -113,7 +113,7 @@ class EditSettings(BaseRequestHandler):
             self.redirect('/admin/advancesettings')
         except:
             self.redirect('/500.html')
-            
+
 class FriendlinkList(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):
@@ -122,16 +122,16 @@ class FriendlinkList(BaseRequestHandler):
             editlinkid = self.request.GET.get('editlinkid')
             if editlinkid:
                 template_values['editlink'] = Friendlinks.get_by_id(int(editlinkid))
-                
+
             page_index = self.request.GET.get('page')               
             pager = Pager('/admin/advancesettings', page_index, BlogInfo().admin_pages)
             pager.bind_model(Friendlinks)
-            
+
             template_values['page'] = pager
             self.template_render('admin/friendlinklist.html', template_values)
         except:
             self.redirect('/500.html')
-        
+
 class AddFriendlink(BaseRequestHandler):
     @authorized.role('admin')
     def post(self):
@@ -147,7 +147,7 @@ class AddFriendlink(BaseRequestHandler):
             self.redirect('/admin/linklist')
         except:
             self.redirect('/500.html')
-        
+
 class DeleteFriendlink(BaseRequestHandler):
     @authorized.role('admin')
     def get(self):

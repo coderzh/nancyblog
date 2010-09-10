@@ -19,25 +19,9 @@ __author__ = 'CoderZh'
 from google.appengine.ext import db
 
 def get_records_count(query):
-	count = 0
-	query = query.order('__key__')
-
-	while 1:
-		current_count = query.count()
-		count += current_count
-		if current_count == 0:
-			break
-
-		last_key = query.fetch(1, current_count-1)[0]
-		query = query.filter('__key__ > ', last_key)
-
-	return count
-	
+    return query.count()
 
 class BaseModel(db.Model):
-	@classmethod
-	def count_all(cls):
-		"""
-		Count *all* of the rows (without maxing out at 1000)
-		"""
-		return get_records_count(cls.all()) 
+    @classmethod
+    def count_all(cls):
+        return get_records_count(cls.all()) 

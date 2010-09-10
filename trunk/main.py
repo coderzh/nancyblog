@@ -31,11 +31,8 @@ def main():
     application = webapp.WSGIApplication([
         ('/*$', blog.view.MainPage),
         ('/page/(.*)/*$', blog.view.PageHandle),
-        #('/403.html', blog.UnauthorizedHandler),
-        #('/404.html', blog.NotFoundHandler),
-        
+
         ('/archive/([12]\d\d\d)/(\d|[01]\d)/(\d|[0123]\d)/([-\w]+)/*$', blog.view.ViewBlog),
-        #('/archive/([12]\d\d\d)/*$', blog.view.YearArchive),
         ('/archive/(\d*)/*$', blog.view.MonthArchive),
         ('/blog/addcomment/*$', blog.view.AddComment),
         ('/blog/editcomment/*$', blog.view.EditComment),
@@ -46,31 +43,29 @@ def main():
         ('/admin/editblog/*$', blog.view.EditBlog),
         ('/admin/bloglist/*$', blog.view.BlogList),
         ('/admin/deleteblog/*$', blog.view.DeleteBlog),
-        
+
         ('/admin/categorylist/*$', admin.view.CategoryList),
         ('/admin/addcategory/*$', admin.view.AddCategory),
         ('/admin/deletecategory/*$', admin.view.DeleteCategory),
-        
+
         ('/admin/advancesettings/*$', admin.view.AdvanceSettings),
         ('/admin/deletesettings/*$', admin.view.DeleteSettings),
         ('/admin/editsettings/*$', admin.view.EditSettings),
-        
+
         ('/admin/linklist/*$', admin.view.FriendlinkList),
         ('/admin/addlink/*$', admin.view.AddFriendlink),
         ('/admin/editlink/*$', admin.view.AddFriendlink),
         ('/admin/deletelink/*$', admin.view.DeleteFriendlink),
-        
-        #('/search/(.*)/*$', blog.SearchHandler),
+
         ('/tag/(.*)/*$', blog.view.ViewTag),
         ('/category/(.*)/*$', blog.view.ViewCategory),
         ('/rssreader/(.*)/*$', blog.view.RssReaderHandler),
         ('/atom/*$', blog.view.FeedHandler),
-        #('/sitemap/*$', blog.SiteMapHandler),
         ('/tasks/flushmemcache/*$', admin.tasks.FlushMemcache),
         ('/500.html', blog.view.ErrorHandler),
         ('/(.*)', blog.view.NotFoundHandler),
-    ], debug = DEBUG)
-    
+        ], debug = DEBUG)
+
     wsgiref.handlers.CGIHandler().run(application)
 
 
