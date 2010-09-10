@@ -1,0 +1,63 @@
+<!DOCTYPE html public "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head id="Head">
+<title>{{ bloginfo.blogtitle }}</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta id="metaKeywords" name="keywords" content="NancyBlog,博客,Google App Engine,Blog" />
+<link id="MainCss" type="text/css" rel="stylesheet" href="/static/css/style.css" />
+{% block inhead %}{% endblock %}
+</head>
+
+<body>
+
+<div id="home">
+	<div id="header">
+		<div id="blogTitle">
+			<img id="blogLogo" src="/static/images/logo.jpg" alt="博客logo" />
+			<h1><a class="headermaintitle" href="{{ bloginfo.homepage }}">{{ bloginfo.blogtitle }}</a></h1>
+			<h2>{{ bloginfo.subtitle }}</h2>
+		</div>
+		<!--end: blogTitle 博客的标题和副标题 -->
+		<div id="navigator">
+			<ul id="navList">
+				<li><a class="menu" href="/">博客首页</a></li>
+				<li><a class="menu" href="/admin/bloglist">文章列表</a></li>
+				<li><a class="menu" href="/admin/categorylist">类别管理</a></li>
+                <li><a class="menu" href="/admin/linklist">友情链接</a></li>
+				<li><a class="menu" href="/admin/advancesettings">选项</a></li>
+			</ul>
+			<div class="blogStats">
+				随笔- {{stat.blogs_count}}&nbsp; 评论- {{stat.comments_count}}&nbsp; </div>
+			<!--end: blogStats --></div>
+		<!--end: navigator 博客导航栏 --></div>
+	<!--end: header 头部 -->
+	<div id="main">
+		<div id="mainContent">
+        	<div class="forFlow">
+           	{% block mainContent %}
+            {% endblock %}
+            </div>
+        </div>
+		<div id="sideBar">{% block sideBar %}{% endblock %}</div>
+	</div>
+	<div class="clear">
+	</div>
+	<div id="footer">
+		<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
+alt="Powered by Google App Engine" />&nbsp;Copyright ©2009 <a href="http://code.google.com/p/nancyblog/">NancyBlog</a> By {{ bloginfo.author }}
+	<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-10147768-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>	
+	</div>
+</div>
+
+</body>
+
+</html>

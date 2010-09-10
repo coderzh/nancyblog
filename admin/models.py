@@ -25,39 +25,39 @@ class Settings(BaseModel):
     name = db.StringProperty()
     value = db.TextProperty()
     description = db.TextProperty()
-           
+
     @property
     def edit_url(self):
         return '/admin/editsettings?id=%s' % self.key().id()
-    
+
     @property
     def delete_url(self):
         return '/admin/deletesettings?id=%s' % self.key().id()
 
 #class Menus(BaseModel):
- #   text = db.StringProperty()
-  #  url = db.StringProperty()
-    
+    #   text = db.StringProperty()
+    #  url = db.StringProperty()
+
 class Friendlinks(BaseModel):
     title = db.StringProperty()
     url = db.URLProperty()
     description = db.TextProperty()
-    
+
     @staticmethod
     def get_top_10():
         return Friendlinks.all().fetch(10)
-    
+
     @staticmethod
     def create_link(title, url, description):
         new_link = Friendlinks(title=title, url=url, description=description)
         new_link.put()
-        
+
     @staticmethod
     def delete_link(link_id):
         delete_link = Friendlinks.get_by_id(int(link_id))
         if delete_link:
             delete_link.delete()
-        
+
     @staticmethod
     def update_link(link_id, title, url, description):
         edit_link = Friendlinks.get_by_id(int(link_id))
@@ -66,11 +66,11 @@ class Friendlinks(BaseModel):
             edit_link.url = url
             edit_link.description = description
             edit_link.put()
-    
+
     @property
     def delete_url(self):
         return '/admin/deletelink?id=%s' % self.key().id()
-    
+
     @property
     def edit_url(self):
         return '/admin/linklist?editlinkid=%s' % self.key().id()

@@ -20,31 +20,19 @@ from admin.models import Settings
 
 DEBUG = False
 
-THEMES_FOLDER = 'themes'
-THEMES = '5styles-port'
-
 class BlogInfo(object):
     __shared_values = {}
     def __init__(self):
         if not BlogInfo.__shared_values:
-            offset = 0
-            settings = Settings.all().fetch(20, offset)
-            count = len(settings)
-            
-            if count == 0:
-                self.init_settings()
-            else:
-                while True:
-                    for setting in settings:
-                        BlogInfo.__shared_values[setting.name] = setting.value
+            settings = Settings.all()
+            hasData = False
+            for setting in settings:
+                hasData = True
+                BlogInfo.__shared_values[setting.name] = setting.value
 
-                    if count < 20:
-                        break;
-                
-                    offset += 20
-                    settings = Settings.all().fetch(20, offset)
-                    count = len(settings)
-                            
+            if not hasData:
+                self.init_settings()
+
         self.__dict__ = BlogInfo.__shared_values
 
     def init_settings(self):
@@ -63,12 +51,12 @@ class BlogInfo(object):
             'rss_coderzh' : ('http://feeds.feedburner.com/coderzh', u'rss地址'),
             'rss_coderzh_description' : (u'我的技术博客', u'rss描述'),
         }
-        
+
         for name, value in init_values.items():
             setting = Settings(name=name, value=value[0], description=value[1])
             setting.put()
             BlogInfo.__shared_values[name] = value[0]
-            
+
     @staticmethod
     def delete_setting(id):
         setting_item = Settings.get_by_id(int(id))
@@ -76,7 +64,7 @@ class BlogInfo(object):
             key = 'setting_%s' % setting_item.name
             setting_item.delete()
             BlogInfo.__shared_values.pop(setting_item.name)
-            
+
     @staticmethod
     def update_setting(id, name, value, description):
         setting_item = Settings.get_by_id(int(id))

@@ -30,7 +30,7 @@ def role(role):
     def get(self):
       user = users.GetCurrentUser(self)
       self.response.out.write('Hello, ' + user.nickname())
-    
+
     """
     def wrapper(handler_method):
         def check_login(self, *args, **kwargs):
