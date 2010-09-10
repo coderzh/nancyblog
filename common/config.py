@@ -64,6 +64,12 @@ class BlogInfo(object):
             key = 'setting_%s' % setting_item.name
             setting_item.delete()
             BlogInfo.__shared_values.pop(setting_item.name)
+	
+    @staticmethod
+    def create_setting(name, value, description):
+		new_setting = Settings(name=name, value=value, description=description)
+		new_setting.put()
+		BlogInfo.__shared_values[name] = value
 
     @staticmethod
     def update_setting(id, name, value, description):

@@ -18,6 +18,14 @@ function EditSettings(id) {
 	$("input#csetting_id").val(id);
 };
 
+function AddSettings() {
+	$(".cmxform").show();
+	$("input#cname").val("")
+	$("textarea#cvalue").val("")
+	$("textarea#cdescription").val("")
+	$("input#csetting_id").val("")
+};
+
 </script>
 
 {% endblock %}
@@ -49,6 +57,7 @@ function EditSettings(id) {
     </tr>
     </tfoot>
 </table>
+
 <form class="cmxform" id="settingForm" method="post" action="/admin/editsettings">
 	<fieldset>
 	    <legend>修改设置</legend>
@@ -73,9 +82,8 @@ function EditSettings(id) {
 <div class="catListLink">
     <h3 class="catListTitle">操作</h3>
     <ul>
-        <li><a href="/admin/basicsettings">» 基本设置</a></li>
-        <li><a href="/admin/displaysettings">» 显示参数</a></li>
         <li><a href="/admin/advancesettings">» 高级设置</a></li>
+        <li><a href="#settingForm" onclick="AddSettings();">» 添加参数</a></li>
     </ul>
 </div>
 {% endblock%}

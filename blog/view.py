@@ -50,8 +50,7 @@ class MainPage(BaseRequestHandler):
             }
             self.template_render_theme('index.html', template_values)
         except:
-            raise
-#            self.redirect('/500.html')
+            self.redirect('/500.html')
 
 
 class PageHandle(BaseRequestHandler):
